@@ -13,7 +13,7 @@ struct SettingsView: View {
                         AppLogo()
 
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("greeg app").font(.headline)
+                            Text("𝐁𝐋𝐀𝐂𝐊𝐎𝐔𝐓.²⁶ⁱˢ").font(.headline)
                             Text(language.text("common.version", appVersion))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -55,14 +55,19 @@ struct SettingsView: View {
 
                 Section(language.text("settings.social_media")) {
                     creditsRow(
-                        name: "GitHub",
-                        role: language.text("social.github_role"),
-                        url: "https://github.com/YangJiiii/3105"
+                        name: "Discord",
+                        role: "discord.gg/GMpetJrHU",
+                        url: "https://discord.gg/GMpetJrHU"
                     )
                     creditsRow(
-                        name: "Cộng Đồng IOSVN",
-                        role: language.text("social.iosvn_role"),
-                        url: "https://t.me/ioscrackvn"
+                        name: "WhatsApp",
+                        role: "Grupo oficial BLACKOUT",
+                        url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"
+                    )
+                    creditsRow(
+                        name: "TikTok",
+                        role: "@blackout.26is",
+                        url: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid"
                     )
                 }
 

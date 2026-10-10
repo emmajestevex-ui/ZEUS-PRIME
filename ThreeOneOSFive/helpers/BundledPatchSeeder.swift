@@ -117,9 +117,9 @@ enum BundledPatchSeeder {
     private static let payloadDirectoryName = "BundledPatchPayloads"
     private static let seedDate = Date(timeIntervalSince1970: 0)
     private static let assetIndexerProjectID = UUID(uuidString: "A55E0001-3105-4A55-9001-00000000BEEF")!
-    private static let assetIndexerVariantKey = "greeg.assetIndexerVariant"
-    private static let remoteAssetIndexerVariantPrefix = "greeg.remoteAssetIndexerVariant."
-    private static let remoteTargetBundlePrefix = "greeg.remoteTargetBundle."
+    private static let assetIndexerVariantKey = "blackout.assetIndexerVariant"
+    private static let remoteAssetIndexerVariantPrefix = "blackout.remoteAssetIndexerVariant."
+    private static let remoteTargetBundlePrefix = "blackout.remoteTargetBundle."
     private static let assetIndexerDirectory = "Documents/contentcache/Compulsory/ios/gameassetbundles/avatar"
     private static let bundledPackages: [BundledPackageSpec] = []
 
@@ -261,7 +261,7 @@ enum BundledPatchSeeder {
         for spec in activeProjects {
             do {
                 try seed(spec, fileManager: fileManager)
-                log("patch: bundled GREEG patch \(spec.defaultName) is ready")
+                log("patch: bundled BLACKOUT patch \(spec.defaultName) is ready")
             } catch SeedError.missingPayload(let filename) {
                 log("patch: bundled payload missing for \(spec.defaultName): \(filename)")
             } catch SeedError.emptyPayload(let filename) {
@@ -682,30 +682,30 @@ enum BundledPatchSeeder {
     }
 
     private static func remoteStyleMarker(for file: RemoteContentFile) -> String {
-        let category = "[GREEG_CATEGORY:\(file.category.lowercased())]"
+        let category = "[BLACKOUT_CATEGORY:\(file.category.lowercased())]"
         let lowercased = (file.description ?? "").lowercased()
-        if lowercased.contains("[greeg_style:antena]") {
-            return "[GREEG_STYLE:antena] \(category)"
+        if lowercased.contains("[blackout_style:antena]") {
+            return "[BLACKOUT_STYLE:antena] \(category)"
         }
-        if lowercased.contains("[greeg_style:holo]") {
-            return "[GREEG_STYLE:holo] \(category)"
+        if lowercased.contains("[blackout_style:holo]") {
+            return "[BLACKOUT_STYLE:holo] \(category)"
         }
-        if lowercased.contains("[greeg_style:aimbot-normal]") {
-            return "[GREEG_STYLE:aimbot-normal] \(category)"
+        if lowercased.contains("[blackout_style:aimbot-normal]") {
+            return "[BLACKOUT_STYLE:aimbot-normal] \(category)"
         }
         return category
     }
 
     static func isRemoteManagedProject(_ project: PatchProject) -> Bool {
         let author = project.author.lowercased()
-        return author.contains("[greeg_category:")
-            || author.contains("[greeg_style:")
+        return author.contains("[blackout_category:")
+            || author.contains("[blackout_style:")
     }
 
     private static func isRemotePatchPackage(_ file: RemoteContentFile) -> Bool {
         file.category.lowercased() == "packages"
             || file.fileName.lowercased().hasSuffix(".3105")
-            || file.mimeType?.lowercased() == "application/vnd.greeg.3105"
+            || file.mimeType?.lowercased() == "application/vnd.blackout.3105"
     }
 
     private static func targetPath(for spec: PayloadSpec) -> String {

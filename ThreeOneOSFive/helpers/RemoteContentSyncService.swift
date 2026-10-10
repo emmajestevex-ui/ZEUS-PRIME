@@ -248,7 +248,7 @@ final class RemoteContentStore: ObservableObject {
     @Published private(set) var installedFiles: [RemoteContentFile] = []
     @Published private(set) var remoteVersion = 0
     @Published private(set) var statusText = "Ready"
-    @Published private(set) var detailText = "Remote content is stored inside GREEG APP."
+    @Published private(set) var detailText = "Remote content is stored inside BLACKOUT."
     @Published private(set) var progress: Double?
     @Published private(set) var lastChecked: Date?
     @Published private(set) var isBusy = false
@@ -368,7 +368,7 @@ final class RemoteContentStore: ObservableObject {
     }
 
     private func fetchManifest() async throws -> RemoteContentManifest {
-        let licenseKey = UserDefaults.standard.string(forKey: "greeg.license.key")?.normalizedLicenseKey ?? ""
+        let licenseKey = UserDefaults.standard.string(forKey: "blackout.license.key")?.normalizedLicenseKey ?? ""
         guard !licenseKey.isEmpty else { throw RemoteContentSyncError.missingLicense }
 
         var components = URLComponents(url: SupabaseLicenseConfig.projectURL, resolvingAgainstBaseURL: false)
@@ -682,7 +682,7 @@ final class RemoteContentStore: ObservableObject {
             .map { String($0).addingPercentEncoding(withAllowedCharacters: allowed) ?? String($0) }
             .joined(separator: "/")
         let base = SupabaseLicenseConfig.projectURL.absoluteString.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard let url = URL(string: "\(base)/storage/v1/object/greeg-content/\(encodedPath)") else {
+        guard let url = URL(string: "\(base)/storage/v1/object/blackout-content/\(encodedPath)") else {
             throw RemoteContentSyncError.badURL
         }
         return url
@@ -713,7 +713,7 @@ final class RemoteContentStore: ObservableObject {
     private var storeRootURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        return base.appendingPathComponent("GREEGRemoteContent", isDirectory: true)
+        return base.appendingPathComponent("BlackoutRemoteContent", isDirectory: true)
     }
 
     private var currentRootURL: URL {
@@ -834,7 +834,7 @@ enum RemoteContentLibrary {
     private static func storeRootURL(fileManager: FileManager) -> URL {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        return base.appendingPathComponent("GREEGRemoteContent", isDirectory: true)
+        return base.appendingPathComponent("BlackoutRemoteContent", isDirectory: true)
     }
 
     private static func currentRootURL(fileManager: FileManager) -> URL {

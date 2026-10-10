@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>BLACKOUT Admin</title>
+    <link rel="stylesheet" href="./styles.css?v=20261005-ios27-install" />
+  </head>
+  <body class="filesOnly">
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">BLACKOUT</p>
+          <h1>Panel de Archivos</h1>
+        </div>
+        <div class="session">
+          <span id="sessionEmail">Sin sesion</span>
+          <button id="signOutButton" class="ghost hidden" type="button">Salir</button>
+        </div>
+      </section>
+
+      <section id="loginPanel" class="panel narrow">
+        <h2>Entrar al panel</h2>
+        <p class="muted">Usa el correo admin de Supabase. No se usa ninguna service key en esta pagina.</p>
+        <p id="loginStatus" class="notice">Esperando correo y contrasena.</p>
+        <form id="loginForm" class="form">
+          <label>
+            Correo
+            <input id="emailInput" type="email" autocomplete="email" list="adminEmails" value="ysiemmanuel9@gmail.com" required />
+          </label>
+          <datalist id="adminEmails">
+            <option value="ysiemmanuel9@gmail.com"></option>
+            <option value="2008yashirchavez@gmail.com"></option>
+            <option value="emmajestevex@gmail.com"></option>
+            <option value="grego23500@gmail.com"></option>
+          </datalist>
+          <label>
+            Contrasena
+            <input id="passwordInput" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary" type="submit">Entrar</button>
+          <div class="loginActions">
+            <button id="createAccessButton" class="ghost" type="button">Crear acceso</button>
+            <button id="resetPasswordButton" class="ghost" type="button">Recuperar contrasena</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="adminPanel" class="grid hidden">
+        <aside class="panel">
+          <div class="panelHeader">
+            <div>
+              <h2 id="formTitle">Nuevo patch</h2>
+              <p class="muted">Elige una plantilla o crea una ruta nueva.</p>
+            </div>
+            <button id="newButton" class="ghost" type="button">Nuevo</button>
+          </div>
+
+          <div class="quickPanel">
+            <h3>Patches listos</h3>
+            <div id="presetList" class="presetList"></div>
+          </div>
+
+          <form id="fileForm" class="form">
+            <input id="editingId" type="hidden" />
+            <label>
+              Nombre visible
+              <input id="nameInput" type="text" maxlength="80" placeholder="Ej. Banner principal" required />
+            </label>
+            <label>
+              Slug
+              <input id="slugInput" type="text" maxlength="80" placeholder="banner-principal" required />
+            </label>
+            <label>
+              Categoria
+              <select id="categoryInput">
+                <option value="files">files</option>
+                <option value="aimbots">aimbots</option>
+                <option value="patches">patches</option>
+                <option value="images">images</option>
+                <option value="configs">configs</option>
+                <option value="media">media</option>
+                <option value="shaders">shaders</option>
+              </select>
+            </label>
+            <label>
+              Color en la app
+              <select id="styleInput">
+                <option value="antena">ANTENA - rojo</option>
+                <option value="holo">HOLO - verde</option>
+                <option value="aimbot-normal">AIMBOT NORMAL - amarillo</option>
+              </select>
+              <span class="fieldHint">El iPhone lo aplicara al sincronizar despues de publicar.</span>
+            </label>
+            <label>
+              App destino
+              <select id="targetBundleInput">
+                <option value="com.dts.freefireth">Free Fire TH - com.dts.freefireth</option>
+                <option value="com.dts.freefiremax">Free Fire Max - com.dts.freefiremax</option>
+              </select>
+            </label>
+            <label id="assetVariantLabel" class="hidden">
+              Tipo de Asset Indexer
+              <select id="assetVariantInput">
+                <option value="pen">Asset PEN - FF Max</option>
+                <option value="h5">Asset U6 - FF Normal</option>
+              </select>
+              <span class="fieldHint">PEN usa Free Fire Max. U6 usa Free Fire normal. El panel cambia la ruta y la app destino automaticamente.</span>
+            </label>
+            <label>
+              Ruta en BLACKOUT
+              <input id="targetPathInput" type="text" maxlength="180" placeholder="patches/mi-patch.bundle" required />
+              <span class="fieldHint">Elige la app destino y la ruta exacta. Con Nuevo se crea otro patch; con Reemplazar se actualiza solo el elegido.</span>
+            </label>
+            <label>
+              Descripcion
+              <textarea id="descriptionInput" rows="3" placeholder="Nota interna opcional"></textarea>
+            </label>
+            <label>
+              Archivo nuevo o reemplazo
+              <input id="fileInput" type="file" required />
+            </label>
+            <button id="saveButton" class="primary" type="submit">Crear patch nuevo</button>
+          </form>
+        </aside>
+
+        <section class="panel">
+          <div class="panelHeader">
+            <div>
+              <h2>Publicacion</h2>
+              <p id="statusText" class="muted">Cargando...</p>
+            </div>
+            <div class="actions">
+              <button id="refreshButton" class="ghost" type="button">Actualizar</button>
+              <button id="publishButton" class="primary" type="button">Publicar cambios</button>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <input id="searchInput" type="search" placeholder="Buscar archivo..." />
+            <span id="fileCounter" class="counter">0 archivos</span>
+          </div>
+
+          <div id="fileList" class="fileList"></div>
+
+          <div id="archivedBlock" class="archiveBlock hidden">
+            <div class="sectionHeader">
+              <h3>Archivados/Inactivos</h3>
+              <span id="archivedCounter" class="counter">0 archivos</span>
+            </div>
+            <p class="muted archiveHint">Estos registros no forman parte del manifest vigente que recibe la app.</p>
+            <div id="archivedFileList" class="fileList"></div>
+          </div>
+        </section>
+
+        <section class="panel fullWidth keyPanel">
+          <div class="panelHeader">
+            <div>
+              <h2>Keys</h2>
+              <p id="keysStatusText" class="muted">Cargando licencias...</p>
+            </div>
+            <div class="actions">
+              <button id="refreshKeysButton" class="ghost" type="button">Actualizar keys</button>
+            </div>
+          </div>
+
+          <div class="dangerZone">
+            <div>
+              <h3>Acciones rapidas</h3>
+              <p class="muted">Bloquea o limpia muchas keys con una sola accion en Supabase.</p>
+            </div>
+            <div class="dangerActions">
+              <button id="blockAllKeysButton" class="warningButton" type="button">Bloquear todas</button>
+              <button id="deleteBlockedKeysButton" class="deleteButton" type="button">Eliminar bloqueadas/expiradas</button>
+              <button id="blockDeleteAllKeysButton" class="dangerButton" type="button">Bloquear y eliminar todas</button>
+            </div>
+          </div>
+
+          <form id="keyForm" class="form keyCreateForm">
+            <div class="keyCreateGrid">
+              <label>
+                Cantidad
+                <input id="keyQuantityInput" type="number" min="1" max="200" value="1" required />
+              </label>
+              <label>
+                Duracion
+                <input id="keyDurationInput" type="number" min="0" value="0" />
+              </label>
+              <label>
+                Unidad
+                <select id="keyDurationUnitInput">
+                  <option value="lifetime">Sin vencimiento</option>
+                  <option value="hours">Horas</option>
+                  <option value="days">Dias</option>
+                  <option value="weeks">Semanas</option>
+                  <option value="months">Meses</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Nota
+              <input id="keyLabelInput" type="text" maxlength="80" placeholder="Cliente o nota interna" />
+            </label>
+            <label>
+              Key personalizada
+              <input id="customKeyInput" type="text" maxlength="80" placeholder="Opcional: BLACKOUT-CLIENTE-001" />
+              <span class="fieldHint">Si escribes una key personalizada, la cantidad debe ser 1.</span>
+            </label>
+            <label class="checkLabel">
+              <input id="specialAssetIndexerInput" type="checkbox" />
+              Acceso especial Asset Indexer
+            </label>
+            <button id="createKeysButton" class="primary" type="submit">Crear keys</button>
+            <div id="generatedKeysBlock" class="generatedKeysBlock hidden">
+              <h3>Keys creadas</h3>
+              <textarea id="generatedKeysOutput" rows="4" readonly></textarea>
+              <button id="copyGeneratedKeysButton" class="ghost" type="button">Copiar keys</button>
+            </div>
+          </form>
+
+          <div class="toolbar">
+            <input id="keySearchInput" type="search" placeholder="Buscar key, dispositivo o IP..." />
+            <span id="keyCounter" class="counter">0 keys</span>
+          </div>
+
+          <div id="keyList" class="fileList"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="fileTemplate">
+      <article class="fileCard">
+        <div class="fileMain">
+          <div class="fileIcon">FILE</div>
+          <div>
+            <h3></h3>
+            <p class="fileMeta"></p>
+            <p class="filePath"></p>
+            <p class="fileHash"></p>
+          </div>
+        </div>
+        <div class="fileSide">
+          <span class="badge"></span>
+          <span class="styleBadge"></span>
+          <div class="fileActions">
+            <button class="replaceButton" type="button">Reemplazar</button>
+            <button class="toggleButton" type="button"></button>
+            <button class="deleteButton" type="button">Eliminar</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <template id="keyTemplate">
+      <article class="fileCard keyCard">
+        <div class="fileMain">
+          <div class="fileIcon">KEY</div>
+          <div>
+            <h3></h3>
+            <p class="fileMeta"></p>
+            <p class="filePath"></p>
+            <p class="fileHash"></p>
+          </div>
+        </div>
+          <div class="fileSide">
+          <span class="badge"></span>
+          <div class="fileActions">
+            <button class="blockKeyButton" type="button">Bloquear</button>
+            <button class="deleteKeyButton" type="button">Eliminar</button>
+            <button class="resetDeviceButton" type="button">Liberar dispositivo</button>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="./app.js?v=20261005-ios27-install"></script>
+  </body>
+</html>

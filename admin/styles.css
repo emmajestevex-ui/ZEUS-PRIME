@@ -488,6 +488,46 @@ textarea:focus {
   color: #ffd45a !important;
 }
 
+.blockKeyButton {
+  color: #ffd45a !important;
+}
+
+.deleteKeyButton,
+.dangerButton {
+  color: #fff !important;
+  background: linear-gradient(135deg, #ff1c2d, #a40c16) !important;
+  border-color: rgba(255, 64, 74, 0.55) !important;
+}
+
+.warningButton {
+  color: #ffd45a !important;
+  background: rgba(245, 184, 75, 0.14) !important;
+  border-color: rgba(245, 184, 75, 0.35) !important;
+}
+
+.dangerZone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid rgba(255, 28, 45, 0.34);
+  border-radius: 14px;
+  background: rgba(255, 28, 45, 0.08);
+}
+
+.dangerZone h3 {
+  margin: 0 0 4px;
+}
+
+.dangerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .keyCard .fileIcon {
   background: rgba(245, 184, 75, 0.14);
   color: var(--warning);

@@ -7,7 +7,7 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: tabSelection) {
-            GreegHomeView {
+            BlackoutHomeView {
                 withAnimation(.easeInOut(duration: 0.18)) {
                     tabNavigation.select(AppSection.archivos.rawValue)
                 }
@@ -15,15 +15,15 @@ struct ContentView: View {
             .tabItem { CompactTabLabel(title: "Inicio", systemImage: "house.fill") }
             .tag(AppSection.home.rawValue)
 
-            GreegPatchLibraryView()
+            BlackoutPatchLibraryView()
                 .tabItem { CompactTabLabel(title: "Archivos", systemImage: "shippingbox.fill") }
                 .tag(AppSection.archivos.rawValue)
 
-            GreegInstallationView()
+            BlackoutInstallationView()
                 .tabItem { CompactTabLabel(title: "Instalación", systemImage: "wrench.and.screwdriver.fill") }
                 .tag(AppSection.instalacion.rawValue)
 
-            GreegSocialView()
+            BlackoutSocialView()
                 .tabItem { CompactTabLabel(title: "Redes", systemImage: "link.circle.fill") }
                 .tag(AppSection.redes.rawValue)
         }
@@ -64,7 +64,7 @@ private struct CompactTabLabel: View {
     }
 }
 
-private struct GreegHomeView: View {
+private struct BlackoutHomeView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var remoteContentStore: RemoteContentStore
     @EnvironmentObject private var store: PatchProjectStore
@@ -101,7 +101,7 @@ private struct GreegHomeView: View {
                 }
             }
             .sheet(isPresented: $showsSettings) {
-                GreegSettingsSheetView()
+                BlackoutSettingsSheetView()
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
@@ -116,14 +116,14 @@ private struct GreegHomeView: View {
     }
 
     private var heroCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             VStack(alignment: .leading, spacing: 11) {
                 HStack(spacing: 12) {
                     AppLogo(size: 48)
                         .shadow(color: AppTheme.accent.opacity(0.28), radius: 10)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("GREEG APP")
+                        Text("BLACKOUT")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.68)
@@ -152,7 +152,7 @@ private struct GreegHomeView: View {
     }
 
     private var mainFilesCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             VStack(spacing: 9) {
                 Button(action: onOpenFiles) {
                     HStack(spacing: 10) {
@@ -172,7 +172,7 @@ private struct GreegHomeView: View {
                     HomePatchRow(icon: "shippingbox.fill", title: "Sin archivos", subtitle: "Sincroniza para cargar", tint: AppTheme.accent)
                 } else {
                     ForEach(homePreviewProjects.prefix(3), id: \.id) { project in
-                        let kind = GreegPatchKind(project: project)
+                        let kind = BlackoutPatchKind(project: project)
                         HomePatchRow(
                             icon: kind.iconName,
                             title: project.name,
@@ -188,17 +188,17 @@ private struct GreegHomeView: View {
     private var homePreviewProjects: [PatchProject] {
         store.items
             .compactMap(\.project)
-            .filter(GreegPatchLibraryView.shouldShow)
+            .filter(BlackoutPatchLibraryView.shouldShow)
             .sorted { left, right in
-                let leftKind = GreegPatchKind(project: left)
-                let rightKind = GreegPatchKind(project: right)
+                let leftKind = BlackoutPatchKind(project: left)
+                let rightKind = BlackoutPatchKind(project: right)
                 if leftKind.rank != rightKind.rank { return leftKind.rank < rightKind.rank }
                 return left.name.localizedStandardCompare(right.name) == .orderedAscending
             }
     }
 
     private var updatesCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 12) {
                     AppRowIcon(
@@ -248,9 +248,16 @@ private struct GreegHomeView: View {
     }
 
     private var compactSocialCard: some View {
-        GreegPanel {
-            Link(destination: GreegSocialLink.tiktok.url) {
-                SocialRow(link: .tiktok)
+        BlackoutPanel {
+            VStack(spacing: 12) {
+                ForEach(BlackoutSocialLink.allCases, id: \.self) { link in
+                    Link(destination: link.url) {
+                        SocialRow(link: link)
+                    }
+                    if link != .tiktok {
+                        Divider().overlay(AppTheme.accent.opacity(0.18))
+                    }
+                }
             }
         }
     }
@@ -264,7 +271,7 @@ private struct GreegHomeView: View {
     }
 }
 
-private struct GreegPatchLibraryView: View {
+private struct BlackoutPatchLibraryView: View {
     @EnvironmentObject private var store: PatchProjectStore
 
     private static let featuredDisplayOrder = [
@@ -287,8 +294,8 @@ private struct GreegPatchLibraryView: View {
                 return Self.shouldShow(project)
             }
             .sorted { left, right in
-                let leftKind = GreegPatchKind(project: left.project)
-                let rightKind = GreegPatchKind(project: right.project)
+                let leftKind = BlackoutPatchKind(project: left.project)
+                let rightKind = BlackoutPatchKind(project: right.project)
                 if leftKind.rank != rightKind.rank { return leftKind.rank < rightKind.rank }
                 let leftIndex = Self.rank(for: left.project?.name)
                 let rightIndex = Self.rank(for: right.project?.name)
@@ -297,16 +304,16 @@ private struct GreegPatchLibraryView: View {
             }
     }
 
-    private var groupedItems: [GreegPatchSection] {
-        let kinds = Array(Set(visibleItems.map { GreegPatchKind(project: $0.project) }))
+    private var groupedItems: [BlackoutPatchSection] {
+        let kinds = Array(Set(visibleItems.map { BlackoutPatchKind(project: $0.project) }))
             .sorted { left, right in
                 if left.rank != right.rank { return left.rank < right.rank }
                 return left.sectionTitle.localizedStandardCompare(right.sectionTitle) == .orderedAscending
             }
 
         return kinds.compactMap { kind in
-            let items = visibleItems.filter { kind == GreegPatchKind(project: $0.project) }
-            return items.isEmpty ? nil : GreegPatchSection(kind: kind, items: items)
+            let items = visibleItems.filter { kind == BlackoutPatchKind(project: $0.project) }
+            return items.isEmpty ? nil : BlackoutPatchSection(kind: kind, items: items)
         }
     }
 
@@ -331,9 +338,9 @@ private struct GreegPatchLibraryView: View {
                                     VStack(spacing: 9) {
                                         ForEach(section.items) { item in
                                             NavigationLink {
-                                                GreegPatchDetailView(projectID: item.id)
+                                                BlackoutPatchDetailView(projectID: item.id)
                                             } label: {
-                                                GreegPatchRow(item: item)
+                                                BlackoutPatchRow(item: item)
                                             }
                                             .buttonStyle(.plain)
                                         }
@@ -355,11 +362,11 @@ private struct GreegPatchLibraryView: View {
     }
 
     private var headerCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             HStack(spacing: 12) {
                 AppLogo(size: 40)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Centro GREEG")
+                    Text("Centro BLACKOUT")
                         .font(.headline.weight(.black))
                     Text("\(visibleItems.count) archivos privados")
                         .font(.caption.weight(.semibold))
@@ -374,7 +381,7 @@ private struct GreegPatchLibraryView: View {
     }
 
     private var emptyCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             VStack(spacing: 13) {
                 Image(systemName: "shippingbox.fill")
                     .font(.system(size: 30, weight: .bold))
@@ -408,14 +415,14 @@ private struct GreegPatchLibraryView: View {
     }
 
     fileprivate static func shouldShow(_ project: PatchProject) -> Bool {
-        isGreegManaged(project)
+        isBlackoutManaged(project)
             && BundledPatchSeeder.projectIDs.contains(project.id)
             && (!project.rules.isEmpty || !project.directories.isEmpty)
     }
 
     private static func discardReason(for project: PatchProject) -> String? {
-        if !isGreegManaged(project) {
-            return "sin-metadatos-greeg"
+        if !isBlackoutManaged(project) {
+            return "sin-metadatos-blackout"
         }
         if project.rules.isEmpty && project.directories.isEmpty {
             return "sin-reglas-o-rutas"
@@ -423,10 +430,10 @@ private struct GreegPatchLibraryView: View {
         return nil
     }
 
-    private static func isGreegManaged(_ project: PatchProject) -> Bool {
+    private static func isBlackoutManaged(_ project: PatchProject) -> Bool {
         let author = project.author.lowercased()
-        return author.contains("[greeg_category:")
-            || author.contains("[greeg_style:")
+        return author.contains("[blackout_category:")
+            || author.contains("[blackout_style:")
     }
 
     private func logVisiblePatchAudit(items: [PatchLibraryItem]) {
@@ -458,27 +465,27 @@ private struct GreegPatchLibraryView: View {
     }
 }
 
-private struct GreegPatchSection: Identifiable {
-    let kind: GreegPatchKind
+private struct BlackoutPatchSection: Identifiable {
+    let kind: BlackoutPatchKind
     let items: [PatchLibraryItem]
 
     var id: String { kind.id }
 }
 
-private struct GreegPatchKind: Hashable, Identifiable {
+private struct BlackoutPatchKind: Hashable, Identifiable {
     let id: String
     let sectionTitle: String
-    let style: GreegPatchStyle
+    let style: BlackoutPatchStyle
     let rank: Int
 
     init(project: PatchProject?) {
         let author = project?.author.lowercased() ?? ""
-        let category = Self.metadataValue("greeg_category", in: author)
+        let category = Self.metadataValue("blackout_category", in: author)
         let style = Self.style(author: author, category: category, name: project?.name ?? "")
         self.init(style: style, category: category)
     }
 
-    private init(style: GreegPatchStyle, category: String?) {
+    private init(style: BlackoutPatchStyle, category: String?) {
         self.style = style
         switch style {
         case .antena:
@@ -501,10 +508,10 @@ private struct GreegPatchKind: Hashable, Identifiable {
         }
     }
 
-    private static func style(author: String, category: String?, name: String) -> GreegPatchStyle {
-        if author.contains("[greeg_style:antena]") { return .antena }
-        if author.contains("[greeg_style:holo]") { return .holo }
-        if author.contains("[greeg_style:aimbot-normal]") { return .aimbotNormal }
+    private static func style(author: String, category: String?, name: String) -> BlackoutPatchStyle {
+        if author.contains("[blackout_style:antena]") { return .antena }
+        if author.contains("[blackout_style:holo]") { return .holo }
+        if author.contains("[blackout_style:aimbot-normal]") { return .aimbotNormal }
 
         let normalizedName = name
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
@@ -556,7 +563,7 @@ private struct GreegPatchKind: Hashable, Identifiable {
     }
 }
 
-private enum GreegPatchStyle: String, Hashable {
+private enum BlackoutPatchStyle: String, Hashable {
     case antena
     case holo
     case aimbotNormal
@@ -589,15 +596,15 @@ private enum GreegPatchStyle: String, Hashable {
     }
 }
 
-private struct GreegPatchRow: View {
+private struct BlackoutPatchRow: View {
     let item: PatchLibraryItem
 
     private var project: PatchProject? { item.project }
     private var isApplied: Bool { DevicePatchService.latestReceipt(projectID: item.id) != nil }
-    private var kind: GreegPatchKind { GreegPatchKind(project: project) }
+    private var kind: BlackoutPatchKind { BlackoutPatchKind(project: project) }
 
     var body: some View {
-        GreegPanel {
+        BlackoutPanel {
             HStack(spacing: 11) {
                 AppRowIcon(
                     systemName: iconName,
@@ -607,7 +614,7 @@ private struct GreegPatchRow: View {
                 )
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(project?.name ?? "Archivo GREEG")
+                    Text(project?.name ?? "Archivo BLACKOUT")
                         .font(.headline.weight(.black))
                         .foregroundStyle(.white)
                         .lineLimit(2)
@@ -626,7 +633,7 @@ private struct GreegPatchRow: View {
     }
 
     private var iconName: String {
-        let name = (project?.name ?? "Archivo GREEG").lowercased()
+        let name = (project?.name ?? "Archivo BLACKOUT").lowercased()
         if name.contains("cuello") {
             return "link.circle.fill"
         }
@@ -637,11 +644,11 @@ private struct GreegPatchRow: View {
     }
 }
 
-private struct GreegPatchDetailView: View {
+private struct BlackoutPatchDetailView: View {
     @EnvironmentObject private var store: PatchProjectStore
     let projectID: UUID
     @State private var isWorking = false
-    @State private var actionAlert: GreegPatchActionAlert?
+    @State private var actionAlert: BlackoutPatchActionAlert?
 
     private var item: PatchLibraryItem? {
         store.items.first(where: { $0.id == projectID })
@@ -659,8 +666,8 @@ private struct GreegPatchDetailView: View {
         receipt != nil
     }
 
-    private var kind: GreegPatchKind {
-        GreegPatchKind(project: project)
+    private var kind: BlackoutPatchKind {
+        BlackoutPatchKind(project: project)
     }
 
     var body: some View {
@@ -668,9 +675,9 @@ private struct GreegPatchDetailView: View {
             VStack(spacing: 14) {
                 statusCard
 
-                Link(destination: GreegSocialLink.tiktok.url) {
-                    GreegPanel {
-                        SocialRow(link: .tiktok)
+                Link(destination: BlackoutSocialLink.discord.url) {
+                    BlackoutPanel {
+                        SocialRow(link: .discord)
                     }
                 }
 
@@ -713,12 +720,12 @@ private struct GreegPatchDetailView: View {
     }
 
     private var statusCard: some View {
-        GreegPanel {
+        BlackoutPanel {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 14) {
                     AppRowIcon(systemName: kind.iconName, tint: kind.tint, symbolSize: 16, frameSize: 40)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(project?.name ?? "Archivo GREEG")
+                        Text(project?.name ?? "Archivo BLACKOUT")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .lineLimit(2)
                             .minimumScaleFactor(0.75)
@@ -800,17 +807,17 @@ private struct GreegPatchDetailView: View {
                 await MainActor.run {
                     store.reload()
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Listo", message: "Archivo aplicado correctamente.")
+                    actionAlert = BlackoutPatchActionAlert(title: "Listo", message: "Archivo aplicado correctamente.")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Failed", message: message(for: error))
+                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: message(for: error))
                 }
             } catch {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Failed", message: "No se pudo aplicar el archivo.")
+                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: "No se pudo aplicar el archivo.")
                 }
             }
         }
@@ -825,17 +832,17 @@ private struct GreegPatchDetailView: View {
                 await MainActor.run {
                     store.reload()
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Listo", message: "Archivo original restaurado.")
+                    actionAlert = BlackoutPatchActionAlert(title: "Listo", message: "Archivo original restaurado.")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Failed", message: message(for: error))
+                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: message(for: error))
                 }
             } catch {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = GreegPatchActionAlert(title: "Failed", message: "No se pudo restaurar el original.")
+                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: "No se pudo restaurar el original.")
                 }
             }
         }
@@ -853,13 +860,13 @@ private struct GreegPatchDetailView: View {
     }
 }
 
-private struct GreegPatchActionAlert: Identifiable {
+private struct BlackoutPatchActionAlert: Identifiable {
     let id = UUID()
     let title: String
     let message: String
 }
 
-private struct GreegInstallationView: View {
+private struct BlackoutInstallationView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -875,7 +882,7 @@ private struct GreegInstallationView: View {
                     }
                     .padding(.top, 14)
 
-                    GreegPanel {
+                    BlackoutPanel {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 12) {
                                 AppRowIcon(systemName: "network", tint: AppTheme.accent, symbolSize: 18, frameSize: 46)
@@ -932,7 +939,7 @@ private struct GreegInstallationView: View {
     }
 }
 
-private struct GreegSettingsSheetView: View {
+private struct BlackoutSettingsSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -996,7 +1003,7 @@ private struct GreegSettingsSheetView: View {
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 18)
-            GreegPanel {
+            BlackoutPanel {
                 VStack(spacing: 0) {
                     content()
                 }
@@ -1049,7 +1056,7 @@ private struct GreegSettingsSheetView: View {
     }
 }
 
-private struct GreegSocialView: View {
+private struct BlackoutSocialView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -1057,15 +1064,20 @@ private struct GreegSocialView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Redes oficiales")
                             .font(.system(size: 26, weight: .black, design: .rounded))
-                        Text("Canal privado de GREEG APP.")
+                        Text("Canal privado de BLACKOUT.")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 14)
 
-                    GreegPanel {
-                        Link(destination: GreegSocialLink.tiktok.url) {
-                            SocialRow(link: .tiktok)
+                    BlackoutPanel {
+                        ForEach(BlackoutSocialLink.allCases, id: \.self) { link in
+                            Link(destination: link.url) {
+                                SocialRow(link: link)
+                            }
+                            if link != .tiktok {
+                                Divider().overlay(AppTheme.accent.opacity(0.18))
+                            }
                         }
                     }
                 }
@@ -1079,19 +1091,49 @@ private struct GreegSocialView: View {
     }
 }
 
-private enum GreegSocialLink {
+private enum BlackoutSocialLink: CaseIterable, Hashable {
+    case discord
+    case whatsapp
     case tiktok
 
-    var title: String { "TikTok" }
-    var subtitle: String { "@gregg_top" }
-    var systemImage: String { "play.rectangle.fill" }
+    var title: String {
+        switch self {
+        case .discord: "Discord"
+        case .whatsapp: "WhatsApp"
+        case .tiktok: "TikTok"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .discord: "discord.gg/GMpetJrHU"
+        case .whatsapp: "Grupo oficial BLACKOUT"
+        case .tiktok: "@blackout.26is"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .discord: "bubble.left.and.bubble.right.fill"
+        case .whatsapp: "phone.bubble.left.fill"
+        case .tiktok: "play.rectangle.fill"
+        }
+    }
+
     var url: URL {
-        URL(string: "https://www.tiktok.com/@gregg_top?is_from_webapp=1&sender_device=pc")!
+        switch self {
+        case .discord:
+            URL(string: "https://discord.gg/GMpetJrHU")!
+        case .whatsapp:
+            URL(string: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t")!
+        case .tiktok:
+            URL(string: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid")!
+        }
     }
 }
 
 private struct SocialRow: View {
-    let link: GreegSocialLink
+    let link: BlackoutSocialLink
 
     var body: some View {
         HStack(spacing: 16) {
@@ -1113,7 +1155,7 @@ private struct SocialRow: View {
     }
 }
 
-private struct GreegPanel<Content: View>: View {
+private struct BlackoutPanel<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {

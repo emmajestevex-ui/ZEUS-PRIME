@@ -1,8 +1,8 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL = "https://oqpgabogasnxjejgakrt.supabase.co";
-const SUPABASE_KEY = "sb_publishable_yL2R4NnUAO5SBP04edbPrg_zWpPFA31";
-const BUCKET = "greeg-content";
+const SUPABASE_URL = "https://lquefcunhwqkpsdyckpj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_LU0_mdkNyRtEbv4ACU6oCw_dp-5nN62";
+const BUCKET = "blackout-content";
 const SCRIPT_VERSION = "20261005-ios27-install";
 const DEFAULT_TARGET_BUNDLE = "com.dts.freefireth";
 const FREE_FIRE_MAX_BUNDLE = "com.dts.freefiremax";
@@ -19,8 +19,8 @@ const ASSET_VARIANTS = {
     targetPath: `${ASSET_INDEXER_DIRECTORY}/assetindexer.U6Zffc4YIR3DslNj3cXvYGAqz58~3D`,
   },
 };
-const STYLE_MARKER_PREFIX = "[GREEG_STYLE:";
-const STYLE_MARKER_PATTERN = /\s*\[GREEG_STYLE:(antena|holo|aimbot-normal)\]\s*/i;
+const STYLE_MARKER_PREFIX = "[BLACKOUT_STYLE:";
+const STYLE_MARKER_PATTERN = /\s*\[BLACKOUT_STYLE:(antena|holo|aimbot-normal)\]\s*/i;
 const PATCH_STYLES = {
   antena: {
     label: "ANTENA",
@@ -138,7 +138,7 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY, {
   },
 });
 
-window.__GREEG_ADMIN_READY = SCRIPT_VERSION;
+window.__BLACKOUT_ADMIN_READY = SCRIPT_VERSION;
 
 const state = {
   files: [],
@@ -203,6 +203,9 @@ const els = {
   generatedKeysBlock: $("#generatedKeysBlock"),
   generatedKeysOutput: $("#generatedKeysOutput"),
   copyGeneratedKeysButton: $("#copyGeneratedKeysButton"),
+  blockAllKeysButton: $("#blockAllKeysButton"),
+  deleteBlockedKeysButton: $("#deleteBlockedKeysButton"),
+  blockDeleteAllKeysButton: $("#blockDeleteAllKeysButton"),
 };
 
 init();
@@ -247,6 +250,9 @@ function bindEvents() {
   els.keySearchInput.addEventListener("input", renderKeys);
   els.keyForm.addEventListener("submit", createKeys);
   els.copyGeneratedKeysButton.addEventListener("click", copyGeneratedKeys);
+  els.blockAllKeysButton.addEventListener("click", blockAllKeys);
+  els.deleteBlockedKeysButton.addEventListener("click", deleteBlockedOrExpiredKeys);
+  els.blockDeleteAllKeysButton.addEventListener("click", blockAndDeleteAllKeys);
   els.keyDurationUnitInput.addEventListener("change", syncDurationInput);
   els.customKeyInput.addEventListener("input", syncCustomKeyQuantity);
   els.nameInput.addEventListener("input", () => {
@@ -426,7 +432,7 @@ async function loadFiles() {
     return;
   }
 
-  state.files = (data ?? []).filter(isGreegFile);
+  state.files = (data ?? []).filter(isBlackoutFile);
   setStatus("Listo. Recuerda publicar para que los iPhone reciban los cambios.");
   renderFiles();
 }
@@ -456,8 +462,8 @@ async function createKeys(event) {
   const label = els.keyLabelInput.value.trim();
   const capabilities = els.specialAssetIndexerInput.checked ? ["special_assetindexer"] : [];
 
-  if (customKey && !customKey.startsWith("GREEG-")) {
-    els.keysStatusText.textContent = "La key personalizada debe empezar con GREEG-.";
+  if (customKey && !customKey.startsWith("BLACKOUT-")) {
+    els.keysStatusText.textContent = "La key personalizada debe empezar con BLACKOUT-.";
     return;
   }
 
@@ -538,7 +544,7 @@ async function saveFile(event) {
     return;
   }
   if (!targetPath) {
-    setStatus("Completa la ruta que va a reemplazar en GREEG APP.");
+    setStatus("Completa la ruta que va a reemplazar en BLACKOUT.");
     return;
   }
   if (!isCompleteTargetPath(targetPath)) {
@@ -657,6 +663,111 @@ async function resetLicenseDevice(license) {
   }
 
   els.keysStatusText.textContent = "Dispositivo liberado. La key queda lista para otro iPhone.";
+  await loadKeys();
+}
+
+async function setLicenseStatus(license, status) {
+  if (!state.session || state.busy) return;
+  const ok = confirm(`Bloquear esta key?\n\n${license.license_key}\n\nEl iPhone ya no podra usarla.`);
+  if (!ok) return;
+
+  setBusy(true, "Bloqueando key...");
+  const { data, error } = await supabaseClient.rpc("admin_set_license_status", {
+    p_license_key: license.license_key,
+    p_status: status,
+  });
+  setBusy(false);
+
+  if (error || data?.success === false) {
+    els.keysStatusText.textContent = adminErrorMessage(error || data?.message || "No se pudo bloquear la key.");
+    return;
+  }
+
+  els.keysStatusText.textContent = "Key bloqueada.";
+  await loadKeys();
+}
+
+async function deleteLicense(license) {
+  if (!state.session || state.busy) return;
+  const ok = confirm(`Eliminar esta key?\n\n${license.license_key}\n\nPrimero se bloqueara si hace falta.`);
+  if (!ok) return;
+
+  setBusy(true, "Eliminando key...");
+  const { error: blockError } = await supabaseClient.rpc("admin_set_license_status", {
+    p_license_key: license.license_key,
+    p_status: "blocked",
+  });
+  if (blockError) {
+    setBusy(false);
+    els.keysStatusText.textContent = adminErrorMessage(blockError);
+    return;
+  }
+
+  const { data, error } = await supabaseClient.rpc("admin_delete_license", {
+    p_license_key: license.license_key,
+  });
+  setBusy(false);
+
+  if (error || data?.success === false) {
+    els.keysStatusText.textContent = adminErrorMessage(error || data?.message || "No se pudo eliminar la key.");
+    return;
+  }
+
+  els.keysStatusText.textContent = "Key eliminada.";
+  await loadKeys();
+}
+
+async function blockAllKeys() {
+  if (!state.session || state.busy) return;
+  const ok = confirm("Bloquear todas las keys activas y disponibles?");
+  if (!ok) return;
+
+  setBusy(true, "Bloqueando todas las keys...");
+  const { data, error } = await supabaseClient.rpc("admin_block_all_licenses");
+  setBusy(false);
+
+  if (error || data?.success === false) {
+    els.keysStatusText.textContent = adminErrorMessage(error || data?.message || "No se pudieron bloquear las keys.");
+    return;
+  }
+
+  els.keysStatusText.textContent = `Listo: ${data.blocked_count || 0} keys bloqueadas.`;
+  await loadKeys();
+}
+
+async function deleteBlockedOrExpiredKeys() {
+  if (!state.session || state.busy) return;
+  const ok = confirm("Eliminar todas las keys bloqueadas o expiradas?");
+  if (!ok) return;
+
+  setBusy(true, "Eliminando keys bloqueadas/expiradas...");
+  const { data, error } = await supabaseClient.rpc("admin_delete_blocked_or_expired_licenses");
+  setBusy(false);
+
+  if (error || data?.success === false) {
+    els.keysStatusText.textContent = adminErrorMessage(error || data?.message || "No se pudieron eliminar las keys.");
+    return;
+  }
+
+  els.keysStatusText.textContent = `Listo: ${data.deleted_count || 0} keys eliminadas.`;
+  await loadKeys();
+}
+
+async function blockAndDeleteAllKeys() {
+  if (!state.session || state.busy) return;
+  const ok = confirm("Bloquear y eliminar TODAS las keys?\n\nEsto deja el panel sin keys.");
+  if (!ok) return;
+
+  setBusy(true, "Bloqueando y eliminando todas las keys...");
+  const { data, error } = await supabaseClient.rpc("admin_block_and_delete_all_licenses");
+  setBusy(false);
+
+  if (error || data?.success === false) {
+    els.keysStatusText.textContent = adminErrorMessage(error || data?.message || "No se pudieron eliminar todas las keys.");
+    return;
+  }
+
+  els.keysStatusText.textContent = `Listo: ${data.deleted_count || 0} keys eliminadas.`;
   await loadKeys();
 }
 
@@ -979,6 +1090,11 @@ function renderKeys() {
     const resetButton = node.querySelector(".resetDeviceButton");
     resetButton.disabled = !license.device_id || state.busy;
     resetButton.addEventListener("click", () => resetLicenseDevice(license));
+    const blockButton = node.querySelector(".blockKeyButton");
+    blockButton.disabled = license.status === "blocked" || state.busy;
+    blockButton.addEventListener("click", () => setLicenseStatus(license, "blocked"));
+    const deleteButton = node.querySelector(".deleteKeyButton");
+    deleteButton.addEventListener("click", () => deleteLicense(license));
     els.keyList.append(node);
   }
 }
@@ -1075,14 +1191,14 @@ function styleForName(name = "") {
 function cleanDescription(description = "") {
   return String(description || "")
     .replace(STYLE_MARKER_PATTERN, "")
-    .replace(/\s*\[GREEG_CATEGORY:(aimbots|shaders)\]\s*/i, "")
+    .replace(/\s*\[BLACKOUT_CATEGORY:(aimbots|shaders)\]\s*/i, "")
     .trim();
 }
 
 function withStyleMarker(description = "", style = "antena") {
   const clean = cleanDescription(description);
   const safeStyle = PATCH_STYLES[style] ? style : "antena";
-  const marker = `${STYLE_MARKER_PREFIX}${safeStyle}] [GREEG_CATEGORY:${categoryForStyle(safeStyle)}]`;
+  const marker = `${STYLE_MARKER_PREFIX}${safeStyle}] [BLACKOUT_CATEGORY:${categoryForStyle(safeStyle)}]`;
   return clean ? `${clean} ${marker}` : marker;
 }
 
@@ -1095,7 +1211,7 @@ async function normalizeStyleCategories() {
     const wantedCategory = categoryForStyle(style, file.category || "files");
     return (file.category || "files") !== wantedCategory
       || !STYLE_MARKER_PATTERN.test(description)
-      || !new RegExp(`\\[GREEG_CATEGORY:${wantedCategory}\\]`, "i").test(description);
+      || !new RegExp(`\\[BLACKOUT_CATEGORY:${wantedCategory}\\]`, "i").test(description);
   });
 
   for (const file of candidates) {
@@ -1225,7 +1341,7 @@ function isAllowedAdminEmail(email) {
   ].includes(email.trim().toLowerCase());
 }
 
-function isGreegFile(file) {
+function isBlackoutFile(file) {
   const category = String(file.category || "").toLowerCase();
   const slug = String(file.slug || "").toLowerCase();
   return !category.startsWith("glizzy-") && !slug.startsWith("glizzy-");

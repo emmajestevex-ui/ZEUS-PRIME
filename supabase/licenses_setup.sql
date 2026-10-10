@@ -70,11 +70,11 @@ set
     status = 'blocked',
     is_active = false,
     updated_at = now()
-where license_key ~ '^GREEG-[0-9]+$';
+where license_key ~ '^BLACKOUT-[0-9]+$';
 
 insert into public.licenses (license_key, label, capabilities, status, is_active)
 values (
-    'TIO-GREEG927394HD',
+    'TIO-BLACKOUT927394HD',
     'Special TIO key',
     '["special_assetindexer"]'::jsonb,
     'available',
@@ -109,16 +109,16 @@ as $$
     select upper(regexp_replace(trim(coalesce(p_license_key, '')), '\s+', '', 'g'));
 $$;
 
-create or replace function public.generate_secure_license_key(p_prefix text default 'GREEG')
+create or replace function public.generate_secure_license_key(p_prefix text default 'BLACKOUT')
 returns text
 language plpgsql
 as $$
 declare
-    v_prefix text := upper(regexp_replace(trim(coalesce(p_prefix, 'GREEG')), '[^A-Z0-9]+', '', 'g'));
+    v_prefix text := upper(regexp_replace(trim(coalesce(p_prefix, 'BLACKOUT')), '[^A-Z0-9]+', '', 'g'));
     v_raw text := encode(extensions.gen_random_bytes(12), 'hex');
 begin
     if v_prefix = '' then
-        v_prefix := 'GREEG';
+        v_prefix := 'BLACKOUT';
     end if;
 
     return v_prefix || '-' ||
@@ -232,7 +232,7 @@ begin
         return json_build_object('success', false, 'message', 'Invalid key', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
-    if v_key ~ '^GREEG-[0-9]+$' then
+    if v_key ~ '^BLACKOUT-[0-9]+$' then
         return json_build_object('success', false, 'message', 'Old numeric keys are disabled', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
@@ -350,7 +350,7 @@ begin
         return json_build_object('success', false, 'message', 'Invalid key', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
-    if v_key ~ '^GREEG-[0-9]+$' then
+    if v_key ~ '^BLACKOUT-[0-9]+$' then
         return json_build_object('success', false, 'message', 'Old numeric keys are disabled', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
@@ -457,7 +457,7 @@ begin
             raise exception 'Custom keys can only be created one at a time';
         end if;
 
-        if v_custom ~ '^GREEG-[0-9]+$' then
+        if v_custom ~ '^BLACKOUT-[0-9]+$' then
             raise exception 'Old numeric key format is disabled';
         end if;
 
@@ -483,7 +483,7 @@ begin
     else
         for i in 1..v_quantity loop
             loop
-                v_key := public.generate_secure_license_key('GREEG');
+                v_key := public.generate_secure_license_key('BLACKOUT');
                 begin
                     insert into public.licenses (license_key, label, capabilities, expires_at, created_by, status, is_active)
                     values (v_key, nullif(trim(coalesce(p_label, '')), ''), v_capabilities, v_expires_at, auth.uid(), 'available', true);
@@ -603,13 +603,13 @@ begin
         last_checked_at = null,
         used_at = null,
         status = case
-            when expires_at is not null and expires_at <= now() then 'expired'
-            when status = 'blocked' then 'blocked'
+            when v_license.expires_at is not null and v_license.expires_at <= now() then 'expired'
+            when v_license.status = 'blocked' then 'blocked'
             else 'available'
         end,
         is_active = case
-            when expires_at is not null and expires_at <= now() then false
-            when status = 'blocked' then false
+            when v_license.expires_at is not null and v_license.expires_at <= now() then false
+            when v_license.status = 'blocked' then false
             else true
         end,
         updated_at = now()
@@ -666,18 +666,18 @@ begin
         v_status := 'available';
     end if;
 
-    update public.licenses
+    update public.licenses as l
     set
         status = v_status,
         expires_at = case
             when v_status in ('available', 'active')
              and v_license.expires_at is not null
              and v_license.expires_at <= now() then null
-            else expires_at
+            else l.expires_at
         end,
         is_active = v_status in ('available', 'active'),
         updated_at = now()
-    where id = v_license.id
+    where l.id = v_license.id
     returning * into v_license;
 
     return json_build_object(
@@ -787,6 +787,99 @@ begin
 end;
 $$;
 
+create or replace function public.admin_block_all_licenses()
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    v_count integer := 0;
+begin
+    if not public.is_license_admin() then
+        raise exception 'Not authorized';
+    end if;
+
+    update public.licenses as l
+    set
+        status = 'blocked',
+        is_active = false,
+        updated_at = now()
+    where l.status <> 'blocked';
+
+    get diagnostics v_count = row_count;
+
+    return json_build_object(
+        'success', true,
+        'message', 'Keys blocked',
+        'blocked_count', v_count
+    );
+end;
+$$;
+
+create or replace function public.admin_delete_blocked_or_expired_licenses()
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    v_count integer := 0;
+begin
+    if not public.is_license_admin() then
+        raise exception 'Not authorized';
+    end if;
+
+    update public.licenses as l
+    set status = 'expired', is_active = false, updated_at = now()
+    where l.expires_at is not null
+      and l.expires_at <= now()
+      and l.status not in ('blocked', 'expired');
+
+    delete from public.licenses as l
+    where l.status in ('blocked', 'expired');
+
+    get diagnostics v_count = row_count;
+
+    return json_build_object(
+        'success', true,
+        'message', 'Keys deleted',
+        'deleted_count', v_count
+    );
+end;
+$$;
+
+create or replace function public.admin_block_and_delete_all_licenses()
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    v_count integer := 0;
+begin
+    if not public.is_license_admin() then
+        raise exception 'Not authorized';
+    end if;
+
+    update public.licenses as l
+    set
+        status = 'blocked',
+        is_active = false,
+        updated_at = now()
+    where l.status <> 'blocked';
+
+    delete from public.licenses;
+    get diagnostics v_count = row_count;
+
+    return json_build_object(
+        'success', true,
+        'message', 'All keys deleted',
+        'deleted_count', v_count
+    );
+end;
+$$;
+
 revoke all on function public.normalize_license_key(text) from public;
 revoke all on function public.generate_secure_license_key(text) from public;
 revoke all on function public.is_license_admin() from public;
@@ -800,6 +893,9 @@ revoke all on function public.admin_reset_license_device(text) from public;
 revoke all on function public.admin_set_license_status(text, text) from public;
 revoke all on function public.admin_set_license_expiration(text, timestamptz) from public;
 revoke all on function public.admin_delete_license(text) from public;
+revoke all on function public.admin_block_all_licenses() from public;
+revoke all on function public.admin_delete_blocked_or_expired_licenses() from public;
+revoke all on function public.admin_block_and_delete_all_licenses() from public;
 
 grant execute on function public.activate_license(text, text, text, text, text) to anon, authenticated;
 grant execute on function public.check_license(text, text, text, text, text) to anon, authenticated;
@@ -810,3 +906,6 @@ grant execute on function public.admin_reset_license_device(text) to authenticat
 grant execute on function public.admin_set_license_status(text, text) to authenticated;
 grant execute on function public.admin_set_license_expiration(text, timestamptz) to authenticated;
 grant execute on function public.admin_delete_license(text) to authenticated;
+grant execute on function public.admin_block_all_licenses() to authenticated;
+grant execute on function public.admin_delete_blocked_or_expired_licenses() to authenticated;
+grant execute on function public.admin_block_and_delete_all_licenses() to authenticated;

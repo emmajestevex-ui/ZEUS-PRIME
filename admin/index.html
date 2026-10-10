@@ -4,14 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="Cache-Control" content="no-store" />
-    <title>GREEG APP Admin</title>
+    <title>BLACKOUT Admin</title>
     <link rel="stylesheet" href="./styles.css?v=20261005-ios27-install" />
   </head>
   <body>
     <main class="shell">
       <section class="topbar">
         <div>
-          <p class="eyebrow">GREEG APP</p>
+          <p class="eyebrow">BLACKOUT</p>
           <h1>Archivos / Contenido</h1>
         </div>
         <div class="session">
@@ -109,7 +109,7 @@
               <span class="fieldHint">PEN usa Free Fire Max. U6 usa Free Fire normal. El panel cambia la ruta y la app destino automaticamente.</span>
             </label>
             <label>
-              Ruta en GREEG APP
+              Ruta en BLACKOUT
               <input id="targetPathInput" type="text" maxlength="180" placeholder="patches/mi-patch.bundle" required />
               <span class="fieldHint">Elige la app destino y la ruta exacta. Con Nuevo se crea otro patch; con Reemplazar se actualiza solo el elegido.</span>
             </label>
@@ -154,7 +154,7 @@
           </div>
         </section>
 
-        <section class="panel fullWidth">
+        <section class="panel fullWidth keyPanel">
           <div class="panelHeader">
             <div>
               <h2>Keys</h2>
@@ -162,6 +162,18 @@
             </div>
             <div class="actions">
               <button id="refreshKeysButton" class="ghost" type="button">Actualizar keys</button>
+            </div>
+          </div>
+
+          <div class="dangerZone">
+            <div>
+              <h3>Acciones rapidas</h3>
+              <p class="muted">Bloquea o limpia muchas keys con una sola accion en Supabase.</p>
+            </div>
+            <div class="dangerActions">
+              <button id="blockAllKeysButton" class="warningButton" type="button">Bloquear todas</button>
+              <button id="deleteBlockedKeysButton" class="deleteButton" type="button">Eliminar bloqueadas/expiradas</button>
+              <button id="blockDeleteAllKeysButton" class="dangerButton" type="button">Bloquear y eliminar todas</button>
             </div>
           </div>
 
@@ -192,7 +204,7 @@
             </label>
             <label>
               Key personalizada
-              <input id="customKeyInput" type="text" maxlength="80" placeholder="Opcional: GREEG-CLIENTE-001" />
+              <input id="customKeyInput" type="text" maxlength="80" placeholder="Opcional: BLACKOUT-CLIENTE-001" />
               <span class="fieldHint">Si escribes una key personalizada, la cantidad debe ser 1.</span>
             </label>
             <label class="checkLabel">
@@ -251,9 +263,11 @@
             <p class="fileHash"></p>
           </div>
         </div>
-        <div class="fileSide">
+          <div class="fileSide">
           <span class="badge"></span>
           <div class="fileActions">
+            <button class="blockKeyButton" type="button">Bloquear</button>
+            <button class="deleteKeyButton" type="button">Eliminar</button>
             <button class="resetDeviceButton" type="button">Liberar dispositivo</button>
           </div>
         </div>

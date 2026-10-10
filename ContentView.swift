@@ -97,7 +97,7 @@ struct ContentView: View {
                     )
                 }
             }
-            .navigationTitle("greeg app")
+            .navigationTitle("𝐁𝐋𝐀𝐂𝐊𝐎𝐔𝐓.²⁶ⁱˢ")
             .navigationSplitViewColumnWidth(min: 210, ideal: 240, max: 300)
         } detail: {
             sectionContent(selectedVisibleSection)
@@ -126,6 +126,8 @@ struct ContentView: View {
             )
         case .patches:
             PatchProjectsView()
+        case .social:
+            SocialLinksView()
         case .cleaner:
             CleanerView()
         case .wallpapers:
@@ -193,6 +195,7 @@ private extension AppSection {
         case .home: return "tab.home"
         case .files: return "tab.files"
         case .patches: return "tab.patches"
+        case .social: return "tab.social"
         case .cleaner: return "tab.cleaner"
         case .wallpapers: return "tab.wallpapers"
         }
@@ -203,10 +206,66 @@ private extension AppSection {
         case .home: return "house.fill"
         case .files: return "folder.fill"
         case .patches: return "shippingbox.fill"
+        case .social: return "link.circle.fill"
         case .cleaner: return "sparkles"
         case .wallpapers: return "photo.on.rectangle.angled"
         }
     }
+}
+
+private struct SocialLinksView: View {
+    private let links: [BlackoutSocialLink] = [
+        .init(title: "Discord", subtitle: "discord.gg/GMpetJrHU", systemImage: "bubble.left.and.bubble.right.fill", url: "https://discord.gg/GMpetJrHU"),
+        .init(title: "WhatsApp", subtitle: "Grupo oficial BLACKOUT", systemImage: "phone.bubble.left.fill", url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"),
+        .init(title: "TikTok", subtitle: "@blackout.26is", systemImage: "play.rectangle.fill", url: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid")
+    ]
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(links) { link in
+                        if let url = URL(string: link.url) {
+                            Link(destination: url) {
+                                HStack(spacing: 14) {
+                                    Image(systemName: link.systemImage)
+                                        .font(.headline.weight(.bold))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 42, height: 42)
+                                        .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(link.title)
+                                            .font(.headline.weight(.black))
+                                            .foregroundStyle(.primary)
+                                        Text(link.subtitle)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.footnote.weight(.bold))
+                                        .foregroundStyle(AppTheme.accent)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("BLACKOUT")
+                }
+            }
+            .navigationTitle("Redes")
+        }
+    }
+}
+
+private struct BlackoutSocialLink: Identifiable {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let url: String
+
+    var id: String { url }
 }
 
 private struct DashboardView: View {
@@ -290,7 +349,7 @@ private struct DashboardView: View {
                     .shadow(color: AppTheme.accent.opacity(0.35), radius: 12)
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("greeg app")
+                    Text("𝐁𝐋𝐀𝐂𝐊𝐎𝐔𝐓.²⁶ⁱˢ")
                         .font(.system(size: 29, weight: .black, design: .rounded))
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
