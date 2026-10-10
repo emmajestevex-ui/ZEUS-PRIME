@@ -19,10 +19,6 @@ struct ContentView: View {
                 .tabItem { CompactTabLabel(title: "Archivos", systemImage: "shippingbox.fill") }
                 .tag(AppSection.archivos.rawValue)
 
-            BlackoutInstallationView()
-                .tabItem { CompactTabLabel(title: "Instalación", systemImage: "wrench.and.screwdriver.fill") }
-                .tag(AppSection.instalacion.rawValue)
-
             BlackoutSocialView()
                 .tabItem { CompactTabLabel(title: "Redes", systemImage: "link.circle.fill") }
                 .tag(AppSection.redes.rawValue)
@@ -68,7 +64,6 @@ private struct BlackoutHomeView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var remoteContentStore: RemoteContentStore
     @EnvironmentObject private var store: PatchProjectStore
-    @State private var showsSettings = false
     let onOpenFiles: () -> Void
 
     var body: some View {
@@ -89,22 +84,6 @@ private struct BlackoutHomeView: View {
             }
             .background(Color.black.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showsSettings = true
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.headline.weight(.black))
-                    }
-                    .accessibilityLabel("Configuración")
-                }
-            }
-            .sheet(isPresented: $showsSettings) {
-                BlackoutSettingsSheetView()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-            }
             .onAppear {
                 remoteContentStore.loadLocalState()
                 store.reload()
