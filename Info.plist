@@ -36,7 +36,7 @@
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>𝐁𝐋𝐀𝐂𝐊𝐎𝐔𝐓.²⁶ⁱˢ needs document access only for local app support files.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>BLACKOUT usa la red local solo para el flujo de pairing autorizado por el usuario.</string>
+	<string>ZEUS PRIME usa la red local solo para el flujo de pairing autorizado por el usuario.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -214,10 +214,10 @@ private extension AppSection {
 }
 
 private struct SocialLinksView: View {
-    private let links: [BlackoutSocialLink] = [
+    private let links: [ZeusPrimeSocialLink] = [
         .init(title: "Discord", subtitle: "discord.gg/GMpetJrHU", systemImage: "bubble.left.and.bubble.right.fill", url: "https://discord.gg/GMpetJrHU"),
-        .init(title: "WhatsApp", subtitle: "Grupo oficial BLACKOUT", systemImage: "phone.bubble.left.fill", url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"),
-        .init(title: "TikTok", subtitle: "@blackout.26is", systemImage: "play.rectangle.fill", url: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid")
+        .init(title: "WhatsApp", subtitle: "Grupo oficial ZEUS PRIME", systemImage: "phone.bubble.left.fill", url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"),
+        .init(title: "TikTok", subtitle: "@zeusprime.26is", systemImage: "play.rectangle.fill", url: "https://www.tiktok.com/@zeusprime.26is?_r=1&_t=ZP-9AJseC2HEid")
     ]
 
     var body: some View {
@@ -251,7 +251,7 @@ private struct SocialLinksView: View {
                         }
                     }
                 } header: {
-                    Text("BLACKOUT")
+                    Text("ZEUS PRIME")
                 }
             }
             .navigationTitle("Redes")
@@ -259,7 +259,7 @@ private struct SocialLinksView: View {
     }
 }
 
-private struct BlackoutSocialLink: Identifiable {
+private struct ZeusPrimeSocialLink: Identifiable {
     let title: String
     let subtitle: String
     let systemImage: String

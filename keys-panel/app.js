@@ -1,8 +1,8 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL = "https://lquefcunhwqkpsdyckpj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_LU0_mdkNyRtEbv4ACU6oCw_dp-5nN62";
-const BUCKET = "blackout-content";
+const SUPABASE_URL = "https://oqpgabogasnxjejgakrt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_yL2R4NnUAO5SBP04edbPrg_zWpPFA31";
+const BUCKET = "zeus-prime-content";
 const SCRIPT_VERSION = "20261005-ios27-install";
 const DEFAULT_TARGET_BUNDLE = "com.dts.freefireth";
 const FREE_FIRE_MAX_BUNDLE = "com.dts.freefiremax";
@@ -19,8 +19,8 @@ const ASSET_VARIANTS = {
     targetPath: `${ASSET_INDEXER_DIRECTORY}/assetindexer.U6Zffc4YIR3DslNj3cXvYGAqz58~3D`,
   },
 };
-const STYLE_MARKER_PREFIX = "[BLACKOUT_STYLE:";
-const STYLE_MARKER_PATTERN = /\s*\[BLACKOUT_STYLE:(antena|holo|aimbot-normal)\]\s*/i;
+const STYLE_MARKER_PREFIX = "[ZEUS_PRIME_STYLE:";
+const STYLE_MARKER_PATTERN = /\s*\[ZEUS_PRIME_STYLE:(antena|holo|aimbot-normal)\]\s*/i;
 const PATCH_STYLES = {
   antena: {
     label: "ANTENA",
@@ -138,7 +138,7 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY, {
   },
 });
 
-window.__BLACKOUT_ADMIN_READY = SCRIPT_VERSION;
+window.__ZEUS_PRIME_ADMIN_READY = SCRIPT_VERSION;
 
 const state = {
   files: [],
@@ -432,7 +432,7 @@ async function loadFiles() {
     return;
   }
 
-  state.files = (data ?? []).filter(isBlackoutFile);
+  state.files = (data ?? []).filter(isZeusPrimeFile);
   setStatus("Listo. Recuerda publicar para que los iPhone reciban los cambios.");
   renderFiles();
 }
@@ -462,8 +462,8 @@ async function createKeys(event) {
   const label = els.keyLabelInput.value.trim();
   const capabilities = els.specialAssetIndexerInput.checked ? ["special_assetindexer"] : [];
 
-  if (customKey && !customKey.startsWith("BLACKOUT-")) {
-    els.keysStatusText.textContent = "La key personalizada debe empezar con BLACKOUT-.";
+  if (customKey && !customKey.startsWith("ZEUS-")) {
+    els.keysStatusText.textContent = "La key personalizada debe empezar con ZEUS-.";
     return;
   }
 
@@ -544,7 +544,7 @@ async function saveFile(event) {
     return;
   }
   if (!targetPath) {
-    setStatus("Completa la ruta que va a reemplazar en BLACKOUT.");
+    setStatus("Completa la ruta que va a reemplazar en ZEUS PRIME.");
     return;
   }
   if (!isCompleteTargetPath(targetPath)) {
@@ -1191,14 +1191,14 @@ function styleForName(name = "") {
 function cleanDescription(description = "") {
   return String(description || "")
     .replace(STYLE_MARKER_PATTERN, "")
-    .replace(/\s*\[BLACKOUT_CATEGORY:(aimbots|shaders)\]\s*/i, "")
+    .replace(/\s*\[ZEUS_PRIME_CATEGORY:(aimbots|shaders)\]\s*/i, "")
     .trim();
 }
 
 function withStyleMarker(description = "", style = "antena") {
   const clean = cleanDescription(description);
   const safeStyle = PATCH_STYLES[style] ? style : "antena";
-  const marker = `${STYLE_MARKER_PREFIX}${safeStyle}] [BLACKOUT_CATEGORY:${categoryForStyle(safeStyle)}]`;
+  const marker = `${STYLE_MARKER_PREFIX}${safeStyle}] [ZEUS_PRIME_CATEGORY:${categoryForStyle(safeStyle)}]`;
   return clean ? `${clean} ${marker}` : marker;
 }
 
@@ -1211,7 +1211,7 @@ async function normalizeStyleCategories() {
     const wantedCategory = categoryForStyle(style, file.category || "files");
     return (file.category || "files") !== wantedCategory
       || !STYLE_MARKER_PATTERN.test(description)
-      || !new RegExp(`\\[BLACKOUT_CATEGORY:${wantedCategory}\\]`, "i").test(description);
+      || !new RegExp(`\\[ZEUS_PRIME_CATEGORY:${wantedCategory}\\]`, "i").test(description);
   });
 
   for (const file of candidates) {
@@ -1341,7 +1341,7 @@ function isAllowedAdminEmail(email) {
   ].includes(email.trim().toLowerCase());
 }
 
-function isBlackoutFile(file) {
+function isZeusPrimeFile(file) {
   const category = String(file.category || "").toLowerCase();
   const slug = String(file.slug || "").toLowerCase();
   return !category.startsWith("glizzy-") && !slug.startsWith("glizzy-");

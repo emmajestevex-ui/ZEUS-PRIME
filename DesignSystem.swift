@@ -83,7 +83,7 @@ struct AppLogo: View {
 
     var body: some View {
         Group {
-            if let logo = UIImage(named: "BlackoutLogo") {
+            if let logo = UIImage(named: "ZeusPrimeLogo") {
                 Image(uiImage: logo)
                     .resizable()
                     .scaledToFill()

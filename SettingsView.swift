@@ -61,13 +61,13 @@ struct SettingsView: View {
                     )
                     creditsRow(
                         name: "WhatsApp",
-                        role: "Grupo oficial BLACKOUT",
+                        role: "Grupo oficial ZEUS PRIME",
                         url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"
                     )
                     creditsRow(
                         name: "TikTok",
-                        role: "@blackout.26is",
-                        url: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid"
+                        role: "@zeusprime.26is",
+                        url: "https://www.tiktok.com/@zeusprime.26is?_r=1&_t=ZP-9AJseC2HEid"
                     )
                 }
 

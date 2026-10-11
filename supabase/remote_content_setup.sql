@@ -50,8 +50,8 @@ insert into storage.buckets (
     allowed_mime_types
 )
 values (
-    'blackout-content',
-    'blackout-content',
+    'zeus-prime-content',
+    'zeus-prime-content',
     false,
     104857600,
     null
@@ -113,29 +113,29 @@ alter table public.remote_content_releases enable row level security;
 revoke all on public.remote_content_files from anon, authenticated;
 revoke all on public.remote_content_releases from anon, authenticated;
 
-drop policy if exists "BLACKOUT content read for app" on storage.objects;
-drop policy if exists "BLACKOUT content admin manage" on storage.objects;
+drop policy if exists "ZEUS PRIME content read for app" on storage.objects;
+drop policy if exists "ZEUS PRIME content admin manage" on storage.objects;
 
-create policy "BLACKOUT content read for app"
+create policy "ZEUS PRIME content read for app"
 on storage.objects
 for select
 to anon, authenticated
 using (
-    bucket_id = 'blackout-content'
+    bucket_id = 'zeus-prime-content'
     and name like 'content/%'
 );
 
-create policy "BLACKOUT content admin manage"
+create policy "ZEUS PRIME content admin manage"
 on storage.objects
 for all
 to authenticated
 using (
-    bucket_id = 'blackout-content'
+    bucket_id = 'zeus-prime-content'
     and name like 'content/%'
     and public.is_license_admin()
 )
 with check (
-    bucket_id = 'blackout-content'
+    bucket_id = 'zeus-prime-content'
     and name like 'content/%'
     and public.is_license_admin()
 );

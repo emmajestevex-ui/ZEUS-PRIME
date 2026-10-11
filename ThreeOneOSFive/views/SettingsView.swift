@@ -17,7 +17,7 @@ struct SettingsView: View {
                         AppLogo()
 
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("BLACKOUT").font(.headline)
+                            Text("ZEUS PRIME").font(.headline)
                             Text(language.text("common.version", appVersion))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -100,24 +100,6 @@ struct SettingsView: View {
                     Text(language.text("settings.verified_versions"))
                 } footer: {
                     Text(language.text("settings.supported_versions_footer"))
-                }
-
-                Section(language.text("settings.social_media")) {
-                    creditsRow(
-                        name: "Discord",
-                        role: "discord.gg/GMpetJrHU",
-                        url: "https://discord.gg/GMpetJrHU"
-                    )
-                    creditsRow(
-                        name: "WhatsApp",
-                        role: "Grupo oficial BLACKOUT",
-                        url: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t"
-                    )
-                    creditsRow(
-                        name: "TikTok",
-                        role: "@blackout.26is",
-                        url: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid"
-                    )
                 }
 
                 Section(language.text("settings.credits")) {

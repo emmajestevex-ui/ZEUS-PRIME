@@ -7,7 +7,7 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: tabSelection) {
-            BlackoutHomeView {
+            ZeusPrimeHomeView {
                 withAnimation(.easeInOut(duration: 0.18)) {
                     tabNavigation.select(AppSection.archivos.rawValue)
                 }
@@ -15,13 +15,9 @@ struct ContentView: View {
             .tabItem { CompactTabLabel(title: "Inicio", systemImage: "house.fill") }
             .tag(AppSection.home.rawValue)
 
-            BlackoutPatchLibraryView()
+            ZeusPrimePatchLibraryView()
                 .tabItem { CompactTabLabel(title: "Archivos", systemImage: "shippingbox.fill") }
                 .tag(AppSection.archivos.rawValue)
-
-            BlackoutSocialView()
-                .tabItem { CompactTabLabel(title: "Redes", systemImage: "link.circle.fill") }
-                .tag(AppSection.redes.rawValue)
         }
         .tint(AppTheme.accent)
         .imageScale(.small)
@@ -60,7 +56,7 @@ private struct CompactTabLabel: View {
     }
 }
 
-private struct BlackoutHomeView: View {
+private struct ZeusPrimeHomeView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var remoteContentStore: RemoteContentStore
     @EnvironmentObject private var store: PatchProjectStore
@@ -75,8 +71,6 @@ private struct BlackoutHomeView: View {
                     mainFilesCard
                     sectionTitle("ACTUALIZACIONES")
                     updatesCard
-                    sectionTitle("REDES")
-                    compactSocialCard
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 10)
@@ -95,14 +89,14 @@ private struct BlackoutHomeView: View {
     }
 
     private var heroCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             VStack(alignment: .leading, spacing: 11) {
                 HStack(spacing: 12) {
                     AppLogo(size: 48)
                         .shadow(color: AppTheme.accent.opacity(0.28), radius: 10)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("BLACKOUT")
+                        Text("ZEUS PRIME")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .lineLimit(1)
                             .minimumScaleFactor(0.68)
@@ -131,7 +125,7 @@ private struct BlackoutHomeView: View {
     }
 
     private var mainFilesCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             VStack(spacing: 9) {
                 Button(action: onOpenFiles) {
                     HStack(spacing: 10) {
@@ -151,7 +145,7 @@ private struct BlackoutHomeView: View {
                     HomePatchRow(icon: "shippingbox.fill", title: "Sin archivos", subtitle: "Sincroniza para cargar", tint: AppTheme.accent)
                 } else {
                     ForEach(homePreviewProjects.prefix(3), id: \.id) { project in
-                        let kind = BlackoutPatchKind(project: project)
+                        let kind = ZeusPrimePatchKind(project: project)
                         HomePatchRow(
                             icon: kind.iconName,
                             title: project.name,
@@ -167,17 +161,17 @@ private struct BlackoutHomeView: View {
     private var homePreviewProjects: [PatchProject] {
         store.items
             .compactMap(\.project)
-            .filter(BlackoutPatchLibraryView.shouldShow)
+            .filter(ZeusPrimePatchLibraryView.shouldShow)
             .sorted { left, right in
-                let leftKind = BlackoutPatchKind(project: left)
-                let rightKind = BlackoutPatchKind(project: right)
+                let leftKind = ZeusPrimePatchKind(project: left)
+                let rightKind = ZeusPrimePatchKind(project: right)
                 if leftKind.rank != rightKind.rank { return leftKind.rank < rightKind.rank }
                 return left.name.localizedStandardCompare(right.name) == .orderedAscending
             }
     }
 
     private var updatesCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 12) {
                     AppRowIcon(
@@ -226,21 +220,6 @@ private struct BlackoutHomeView: View {
         }
     }
 
-    private var compactSocialCard: some View {
-        BlackoutPanel {
-            VStack(spacing: 12) {
-                ForEach(BlackoutSocialLink.allCases, id: \.self) { link in
-                    Link(destination: link.url) {
-                        SocialRow(link: link)
-                    }
-                    if link != .tiktok {
-                        Divider().overlay(AppTheme.accent.opacity(0.18))
-                    }
-                }
-            }
-        }
-    }
-
     private func sectionTitle(_ value: String) -> some View {
         Text(value)
             .font(.caption.weight(.black))
@@ -250,7 +229,7 @@ private struct BlackoutHomeView: View {
     }
 }
 
-private struct BlackoutPatchLibraryView: View {
+private struct ZeusPrimePatchLibraryView: View {
     @EnvironmentObject private var store: PatchProjectStore
 
     private static let featuredDisplayOrder = [
@@ -273,8 +252,8 @@ private struct BlackoutPatchLibraryView: View {
                 return Self.shouldShow(project)
             }
             .sorted { left, right in
-                let leftKind = BlackoutPatchKind(project: left.project)
-                let rightKind = BlackoutPatchKind(project: right.project)
+                let leftKind = ZeusPrimePatchKind(project: left.project)
+                let rightKind = ZeusPrimePatchKind(project: right.project)
                 if leftKind.rank != rightKind.rank { return leftKind.rank < rightKind.rank }
                 let leftIndex = Self.rank(for: left.project?.name)
                 let rightIndex = Self.rank(for: right.project?.name)
@@ -283,16 +262,16 @@ private struct BlackoutPatchLibraryView: View {
             }
     }
 
-    private var groupedItems: [BlackoutPatchSection] {
-        let kinds = Array(Set(visibleItems.map { BlackoutPatchKind(project: $0.project) }))
+    private var groupedItems: [ZeusPrimePatchSection] {
+        let kinds = Array(Set(visibleItems.map { ZeusPrimePatchKind(project: $0.project) }))
             .sorted { left, right in
                 if left.rank != right.rank { return left.rank < right.rank }
                 return left.sectionTitle.localizedStandardCompare(right.sectionTitle) == .orderedAscending
             }
 
         return kinds.compactMap { kind in
-            let items = visibleItems.filter { kind == BlackoutPatchKind(project: $0.project) }
-            return items.isEmpty ? nil : BlackoutPatchSection(kind: kind, items: items)
+            let items = visibleItems.filter { kind == ZeusPrimePatchKind(project: $0.project) }
+            return items.isEmpty ? nil : ZeusPrimePatchSection(kind: kind, items: items)
         }
     }
 
@@ -317,9 +296,9 @@ private struct BlackoutPatchLibraryView: View {
                                     VStack(spacing: 9) {
                                         ForEach(section.items) { item in
                                             NavigationLink {
-                                                BlackoutPatchDetailView(projectID: item.id)
+                                                ZeusPrimePatchDetailView(projectID: item.id)
                                             } label: {
-                                                BlackoutPatchRow(item: item)
+                                                ZeusPrimePatchRow(item: item)
                                             }
                                             .buttonStyle(.plain)
                                         }
@@ -341,11 +320,11 @@ private struct BlackoutPatchLibraryView: View {
     }
 
     private var headerCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             HStack(spacing: 12) {
                 AppLogo(size: 40)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Centro BLACKOUT")
+                    Text("Centro ZEUS PRIME")
                         .font(.headline.weight(.black))
                     Text("\(visibleItems.count) archivos privados")
                         .font(.caption.weight(.semibold))
@@ -360,7 +339,7 @@ private struct BlackoutPatchLibraryView: View {
     }
 
     private var emptyCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             VStack(spacing: 13) {
                 Image(systemName: "shippingbox.fill")
                     .font(.system(size: 30, weight: .bold))
@@ -394,14 +373,14 @@ private struct BlackoutPatchLibraryView: View {
     }
 
     fileprivate static func shouldShow(_ project: PatchProject) -> Bool {
-        isBlackoutManaged(project)
+        isZeusPrimeManaged(project)
             && BundledPatchSeeder.projectIDs.contains(project.id)
             && (!project.rules.isEmpty || !project.directories.isEmpty)
     }
 
     private static func discardReason(for project: PatchProject) -> String? {
-        if !isBlackoutManaged(project) {
-            return "sin-metadatos-blackout"
+        if !isZeusPrimeManaged(project) {
+            return "sin-metadatos-zeusprime"
         }
         if project.rules.isEmpty && project.directories.isEmpty {
             return "sin-reglas-o-rutas"
@@ -409,10 +388,10 @@ private struct BlackoutPatchLibraryView: View {
         return nil
     }
 
-    private static func isBlackoutManaged(_ project: PatchProject) -> Bool {
+    private static func isZeusPrimeManaged(_ project: PatchProject) -> Bool {
         let author = project.author.lowercased()
-        return author.contains("[blackout_category:")
-            || author.contains("[blackout_style:")
+        return author.contains("[zeus_prime_category:")
+            || author.contains("[zeus_prime_style:")
     }
 
     private func logVisiblePatchAudit(items: [PatchLibraryItem]) {
@@ -444,27 +423,27 @@ private struct BlackoutPatchLibraryView: View {
     }
 }
 
-private struct BlackoutPatchSection: Identifiable {
-    let kind: BlackoutPatchKind
+private struct ZeusPrimePatchSection: Identifiable {
+    let kind: ZeusPrimePatchKind
     let items: [PatchLibraryItem]
 
     var id: String { kind.id }
 }
 
-private struct BlackoutPatchKind: Hashable, Identifiable {
+private struct ZeusPrimePatchKind: Hashable, Identifiable {
     let id: String
     let sectionTitle: String
-    let style: BlackoutPatchStyle
+    let style: ZeusPrimePatchStyle
     let rank: Int
 
     init(project: PatchProject?) {
         let author = project?.author.lowercased() ?? ""
-        let category = Self.metadataValue("blackout_category", in: author)
+        let category = Self.metadataValue("zeus_prime_category", in: author)
         let style = Self.style(author: author, category: category, name: project?.name ?? "")
         self.init(style: style, category: category)
     }
 
-    private init(style: BlackoutPatchStyle, category: String?) {
+    private init(style: ZeusPrimePatchStyle, category: String?) {
         self.style = style
         switch style {
         case .antena:
@@ -487,10 +466,10 @@ private struct BlackoutPatchKind: Hashable, Identifiable {
         }
     }
 
-    private static func style(author: String, category: String?, name: String) -> BlackoutPatchStyle {
-        if author.contains("[blackout_style:antena]") { return .antena }
-        if author.contains("[blackout_style:holo]") { return .holo }
-        if author.contains("[blackout_style:aimbot-normal]") { return .aimbotNormal }
+    private static func style(author: String, category: String?, name: String) -> ZeusPrimePatchStyle {
+        if author.contains("[zeus_prime_style:antena]") { return .antena }
+        if author.contains("[zeus_prime_style:holo]") { return .holo }
+        if author.contains("[zeus_prime_style:aimbot-normal]") { return .aimbotNormal }
 
         let normalizedName = name
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
@@ -542,7 +521,7 @@ private struct BlackoutPatchKind: Hashable, Identifiable {
     }
 }
 
-private enum BlackoutPatchStyle: String, Hashable {
+private enum ZeusPrimePatchStyle: String, Hashable {
     case antena
     case holo
     case aimbotNormal
@@ -575,15 +554,15 @@ private enum BlackoutPatchStyle: String, Hashable {
     }
 }
 
-private struct BlackoutPatchRow: View {
+private struct ZeusPrimePatchRow: View {
     let item: PatchLibraryItem
 
     private var project: PatchProject? { item.project }
     private var isApplied: Bool { DevicePatchService.latestReceipt(projectID: item.id) != nil }
-    private var kind: BlackoutPatchKind { BlackoutPatchKind(project: project) }
+    private var kind: ZeusPrimePatchKind { ZeusPrimePatchKind(project: project) }
 
     var body: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             HStack(spacing: 11) {
                 AppRowIcon(
                     systemName: iconName,
@@ -593,7 +572,7 @@ private struct BlackoutPatchRow: View {
                 )
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(project?.name ?? "Archivo BLACKOUT")
+                    Text(project?.name ?? "Archivo ZEUS PRIME")
                         .font(.headline.weight(.black))
                         .foregroundStyle(.white)
                         .lineLimit(2)
@@ -612,7 +591,7 @@ private struct BlackoutPatchRow: View {
     }
 
     private var iconName: String {
-        let name = (project?.name ?? "Archivo BLACKOUT").lowercased()
+        let name = (project?.name ?? "Archivo ZEUS PRIME").lowercased()
         if name.contains("cuello") {
             return "link.circle.fill"
         }
@@ -623,11 +602,11 @@ private struct BlackoutPatchRow: View {
     }
 }
 
-private struct BlackoutPatchDetailView: View {
+private struct ZeusPrimePatchDetailView: View {
     @EnvironmentObject private var store: PatchProjectStore
     let projectID: UUID
     @State private var isWorking = false
-    @State private var actionAlert: BlackoutPatchActionAlert?
+    @State private var actionAlert: ZeusPrimePatchActionAlert?
 
     private var item: PatchLibraryItem? {
         store.items.first(where: { $0.id == projectID })
@@ -645,20 +624,14 @@ private struct BlackoutPatchDetailView: View {
         receipt != nil
     }
 
-    private var kind: BlackoutPatchKind {
-        BlackoutPatchKind(project: project)
+    private var kind: ZeusPrimePatchKind {
+        ZeusPrimePatchKind(project: project)
     }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
                 statusCard
-
-                Link(destination: BlackoutSocialLink.discord.url) {
-                    BlackoutPanel {
-                        SocialRow(link: .discord)
-                    }
-                }
 
                 actionButton(
                     title: isWorking ? "Aplicando" : "Aplicar",
@@ -699,12 +672,12 @@ private struct BlackoutPatchDetailView: View {
     }
 
     private var statusCard: some View {
-        BlackoutPanel {
+        ZeusPrimePanel {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 14) {
                     AppRowIcon(systemName: kind.iconName, tint: kind.tint, symbolSize: 16, frameSize: 40)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(project?.name ?? "Archivo BLACKOUT")
+                        Text(project?.name ?? "Archivo ZEUS PRIME")
                             .font(.system(size: 24, weight: .black, design: .rounded))
                             .lineLimit(2)
                             .minimumScaleFactor(0.75)
@@ -786,17 +759,17 @@ private struct BlackoutPatchDetailView: View {
                 await MainActor.run {
                     store.reload()
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Listo", message: "Archivo aplicado correctamente.")
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Listo", message: "Archivo aplicado correctamente.")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: message(for: error))
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Failed", message: message(for: error))
                 }
             } catch {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: "No se pudo aplicar el archivo.")
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Failed", message: "No se pudo aplicar el archivo.")
                 }
             }
         }
@@ -811,17 +784,17 @@ private struct BlackoutPatchDetailView: View {
                 await MainActor.run {
                     store.reload()
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Listo", message: "Archivo original restaurado.")
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Listo", message: "Archivo original restaurado.")
                 }
             } catch let error as PatchPackageError {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: message(for: error))
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Failed", message: message(for: error))
                 }
             } catch {
                 await MainActor.run {
                     isWorking = false
-                    actionAlert = BlackoutPatchActionAlert(title: "Failed", message: "No se pudo restaurar el original.")
+                    actionAlert = ZeusPrimePatchActionAlert(title: "Failed", message: "No se pudo restaurar el original.")
                 }
             }
         }
@@ -839,13 +812,13 @@ private struct BlackoutPatchDetailView: View {
     }
 }
 
-private struct BlackoutPatchActionAlert: Identifiable {
+private struct ZeusPrimePatchActionAlert: Identifiable {
     let id = UUID()
     let title: String
     let message: String
 }
 
-private struct BlackoutInstallationView: View {
+private struct ZeusPrimeInstallationView: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -861,7 +834,7 @@ private struct BlackoutInstallationView: View {
                     }
                     .padding(.top, 14)
 
-                    BlackoutPanel {
+                    ZeusPrimePanel {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 12) {
                                 AppRowIcon(systemName: "network", tint: AppTheme.accent, symbolSize: 18, frameSize: 46)
@@ -918,7 +891,7 @@ private struct BlackoutInstallationView: View {
     }
 }
 
-private struct BlackoutSettingsSheetView: View {
+private struct ZeusPrimeSettingsSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -982,7 +955,7 @@ private struct BlackoutSettingsSheetView: View {
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 18)
-            BlackoutPanel {
+            ZeusPrimePanel {
                 VStack(spacing: 0) {
                     content()
                 }
@@ -1035,106 +1008,7 @@ private struct BlackoutSettingsSheetView: View {
     }
 }
 
-private struct BlackoutSocialView: View {
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Redes oficiales")
-                            .font(.system(size: 26, weight: .black, design: .rounded))
-                        Text("Canal privado de BLACKOUT.")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, 14)
-
-                    BlackoutPanel {
-                        ForEach(BlackoutSocialLink.allCases, id: \.self) { link in
-                            Link(destination: link.url) {
-                                SocialRow(link: link)
-                            }
-                            if link != .tiktok {
-                                Divider().overlay(AppTheme.accent.opacity(0.18))
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, 14)
-                .padding(.bottom, 36)
-            }
-            .background(Color.black.ignoresSafeArea())
-            .navigationTitle("Redes")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-private enum BlackoutSocialLink: CaseIterable, Hashable {
-    case discord
-    case whatsapp
-    case tiktok
-
-    var title: String {
-        switch self {
-        case .discord: "Discord"
-        case .whatsapp: "WhatsApp"
-        case .tiktok: "TikTok"
-        }
-    }
-
-    var subtitle: String {
-        switch self {
-        case .discord: "discord.gg/GMpetJrHU"
-        case .whatsapp: "Grupo oficial BLACKOUT"
-        case .tiktok: "@blackout.26is"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .discord: "bubble.left.and.bubble.right.fill"
-        case .whatsapp: "phone.bubble.left.fill"
-        case .tiktok: "play.rectangle.fill"
-        }
-    }
-
-    var url: URL {
-        switch self {
-        case .discord:
-            URL(string: "https://discord.gg/GMpetJrHU")!
-        case .whatsapp:
-            URL(string: "https://chat.whatsapp.com/EZ6aVYlc0iWF7xTcJ92kWS?mode=gi_t")!
-        case .tiktok:
-            URL(string: "https://www.tiktok.com/@blackout.26is?_r=1&_t=ZP-9AJseC2HEid")!
-        }
-    }
-}
-
-private struct SocialRow: View {
-    let link: BlackoutSocialLink
-
-    var body: some View {
-        HStack(spacing: 16) {
-            AppRowIcon(systemName: link.systemImage, tint: AppTheme.accent, symbolSize: 17, frameSize: 42)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(link.title)
-                    .font(.title2.weight(.black))
-                    .foregroundStyle(AppTheme.accent)
-                Text(link.subtitle)
-                    .font(.headline)
-                    .foregroundStyle(AppTheme.accent.opacity(0.72))
-            }
-            Spacer()
-            Image(systemName: "arrow.up.right")
-                .font(.headline.weight(.black))
-                .foregroundStyle(AppTheme.accent.opacity(0.8))
-        }
-        .contentShape(Rectangle())
-    }
-}
-
-private struct BlackoutPanel<Content: View>: View {
+private struct ZeusPrimePanel<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {

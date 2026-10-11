@@ -12,7 +12,7 @@ struct ThreeOneOSFiveApp: App {
     @StateObject private var patchStore = PatchProjectStore()
     @StateObject private var repositoryStore = PackageRepositoryStore()
     @State private var showOnboarding = false
-    @AppStorage("blackout.license.supabaseUnlocked") private var licenseUnlocked = false
+    @AppStorage("zeusprime.license.supabaseUnlocked") private var licenseUnlocked = false
     @State private var licenseMessage = ""
     @State private var licenseCheckInFlight = false
     @State private var licenseValidationPending = true
@@ -39,7 +39,7 @@ struct ThreeOneOSFiveApp: App {
 
     private func refreshLicenseStatus() {
         let deviceID = DeviceInstallationID.current()
-        let storedKey = UserDefaults.standard.string(forKey: "blackout.license.key")?.normalizedLicenseKey ?? ""
+        let storedKey = UserDefaults.standard.string(forKey: "zeusprime.license.key")?.normalizedLicenseKey ?? ""
         guard !storedKey.isEmpty else {
             licenseValidationPending = false
             if licenseUnlocked {
@@ -59,9 +59,9 @@ struct ThreeOneOSFiveApp: App {
                     licenseValidationPending = false
                     if response.success {
                         let defaults = UserDefaults.standard
-                        defaults.set(storedKey, forKey: "blackout.license.key")
-                        defaults.set(deviceID, forKey: "blackout.license.device")
-                        defaults.set(true, forKey: "blackout.license.supabaseUnlocked")
+                        defaults.set(storedKey, forKey: "zeusprime.license.key")
+                        defaults.set(deviceID, forKey: "zeusprime.license.device")
+                        defaults.set(true, forKey: "zeusprime.license.supabaseUnlocked")
                         licenseMessage = ""
                         licenseUnlocked = true
                         LicenseEntitlements.store(response.capabilities, expiresAt: response.expiresAt)
@@ -87,7 +87,7 @@ struct ThreeOneOSFiveApp: App {
 
     private func lockStoredLicense(message: String) {
         let defaults = UserDefaults.standard
-        defaults.set(false, forKey: "blackout.license.supabaseUnlocked")
+        defaults.set(false, forKey: "zeusprime.license.supabaseUnlocked")
         LicenseEntitlements.clear()
         licenseMessage = message
         licenseValidationPending = false
@@ -138,7 +138,7 @@ struct ThreeOneOSFiveApp: App {
                         }
                     }
                 } else {
-                    BlackoutLicenseView(initialMessage: licenseMessage) {
+                    ZeusPrimeLicenseView(initialMessage: licenseMessage) {
                         licenseValidationPending = false
                         licenseUnlocked = true
                         prepareUnlockedApp()
@@ -305,7 +305,7 @@ private struct LicenseCheckingView: View {
 }
 
 
-private struct BlackoutLicenseView: View {
+private struct ZeusPrimeLicenseView: View {
     @State private var key: String
     @State private var messageText = ""
     @State private var didActivate = false
@@ -314,7 +314,7 @@ private struct BlackoutLicenseView: View {
     let onSuccess: () -> Void
 
     init(initialMessage: String = "", onSuccess: @escaping () -> Void) {
-        _key = State(initialValue: UserDefaults.standard.string(forKey: "blackout.license.key")?.normalizedLicenseKey ?? "")
+        _key = State(initialValue: UserDefaults.standard.string(forKey: "zeusprime.license.key")?.normalizedLicenseKey ?? "")
         _messageText = State(initialValue: initialMessage)
         self.onSuccess = onSuccess
     }
@@ -328,7 +328,7 @@ private struct BlackoutLicenseView: View {
                     .shadow(color: AppTheme.accent.opacity(0.55), radius: 24)
 
                 VStack(spacing: 7) {
-                    Text("𝐁𝐋𝐀𝐂𝐊𝐎𝐔𝐓.²⁶ⁱˢ")
+                    Text("ZEUS PRIME")
                         .font(.system(size: 31, weight: .black, design: .rounded))
                         .foregroundStyle(.white)
                     Text("Exclusive client access")
@@ -340,7 +340,7 @@ private struct BlackoutLicenseView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "key.fill")
                             .foregroundStyle(AppTheme.accent)
-                        TextField("BLACKOUT-ABCD-EF12-3456", text: $key)
+                        TextField("ZEUS-ABCD-EF12-3456", text: $key)
                             .textInputAutocapitalization(.characters)
                             .autocorrectionDisabled()
                             .foregroundStyle(.white)
@@ -383,7 +383,7 @@ private struct BlackoutLicenseView: View {
                     .foregroundStyle(.secondary)
 
                 Spacer()
-                Text("BLACKOUT - STAY PRIVATE")
+                Text("ZEUS PRIME - STAY PRIVATE")
                     .font(.caption2.weight(.semibold))
                     .tracking(2)
                     .foregroundStyle(.secondary)
@@ -422,9 +422,9 @@ private struct BlackoutLicenseView: View {
 
             if response.success {
                 let defaults = UserDefaults.standard
-                defaults.set(normalized, forKey: "blackout.license.key")
-                defaults.set(deviceID, forKey: "blackout.license.device")
-                defaults.set(true, forKey: "blackout.license.supabaseUnlocked")
+                defaults.set(normalized, forKey: "zeusprime.license.key")
+                defaults.set(deviceID, forKey: "zeusprime.license.device")
+                defaults.set(true, forKey: "zeusprime.license.supabaseUnlocked")
                 LicenseEntitlements.store(response.capabilities, expiresAt: response.expiresAt)
                 didActivate = true
                 onSuccess()
@@ -436,15 +436,15 @@ private struct BlackoutLicenseView: View {
 }
 
 enum SupabaseLicenseConfig {
-    static let projectURL = URL(string: "https://lquefcunhwqkpsdyckpj.supabase.co")!
-    static let publishableKey = "sb_publishable_LU0_mdkNyRtEbv4ACU6oCw_dp-5nN62"
+    static let projectURL = URL(string: "https://oqpgabogasnxjejgakrt.supabase.co")!
+    static let publishableKey = "sb_publishable_yL2R4NnUAO5SBP04edbPrg_zWpPFA31"
 }
 
 enum LicenseEntitlements {
     static let specialAssetIndexer = "special_assetindexer"
 
-    private static let capabilitiesKey = "blackout.license.capabilities"
-    private static let expiresAtKey = "blackout.license.expiresAt"
+    private static let capabilitiesKey = "zeusprime.license.capabilities"
+    private static let expiresAtKey = "zeusprime.license.expiresAt"
 
     static func store(_ capabilities: [String], expiresAt: String?, defaults: UserDefaults = .standard) {
         let normalized = capabilities
@@ -654,9 +654,9 @@ private extension SupabaseRPCError {
 }
 
 enum DeviceInstallationID {
-    private static let service = "com.apple.mobile.MobileHouseArrest.blackout-license"
+    private static let service = "com.apple.mobile.MobileHouseArrest.zeusprime-license"
     private static let account = "installation-id"
-    private static let fallbackKey = "blackout.license.installationID"
+    private static let fallbackKey = "zeusprime.license.installationID"
 
     static func current(defaults: UserDefaults = .standard) -> String {
         if let existing = readFromKeychain(), !existing.isEmpty {

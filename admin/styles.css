@@ -6,8 +6,8 @@
   --line: #2b333d;
   --text: #f4f7fb;
   --muted: #95a0ad;
-  --accent: #f01821;
-  --accent-strong: #ff4249;
+  --accent: #7c1dff;
+  --accent-strong: #a855ff;
   --blue: #3fa7ff;
   --green: #4bd47b;
   --warning: #f5b84b;
@@ -110,7 +110,7 @@ h3 {
 }
 
 .notice.error {
-  color: #ff9ba0;
+  color: #d8b4fe;
 }
 
 .notice.ok {
@@ -184,7 +184,7 @@ h3 {
 .presetRemoveButton {
   width: 78px;
   min-height: 70px;
-  color: #ff9ea3;
+  color: #d8b4fe;
   background: #10151b;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -460,8 +460,8 @@ textarea:focus {
 }
 
 .styleAntena {
-  color: #ff4d57;
-  background: rgba(240, 24, 33, 0.14);
+  color: #b26cff;
+  background: rgba(124, 29, 255, 0.16);
 }
 
 .styleHolo {
@@ -481,7 +481,7 @@ textarea:focus {
 }
 
 .deleteButton {
-  color: #ff9ba0 !important;
+  color: #d8b4fe !important;
 }
 
 .resetDeviceButton {
@@ -495,8 +495,8 @@ textarea:focus {
 .deleteKeyButton,
 .dangerButton {
   color: #fff !important;
-  background: linear-gradient(135deg, #ff1c2d, #a40c16) !important;
-  border-color: rgba(255, 64, 74, 0.55) !important;
+  background: linear-gradient(135deg, #7c1dff, #3b0764) !important;
+  border-color: rgba(168, 85, 247, 0.55) !important;
 }
 
 .warningButton {
@@ -512,7 +512,7 @@ textarea:focus {
   align-items: center;
   margin: 16px 0;
   padding: 14px;
-  border: 1px solid rgba(255, 28, 45, 0.34);
+  border: 1px solid rgba(124, 29, 255, 0.34);
   border-radius: 14px;
   background: rgba(255, 28, 45, 0.08);
 }

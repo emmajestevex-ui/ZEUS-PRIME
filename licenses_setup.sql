@@ -70,11 +70,11 @@ set
     status = 'blocked',
     is_active = false,
     updated_at = now()
-where license_key ~ '^BLACKOUT-[0-9]+$';
+where license_key ~ '^ZEUS-[0-9]+$';
 
 insert into public.licenses (license_key, label, capabilities, status, is_active)
 values (
-    'TIO-BLACKOUT927394HD',
+    'TIO-ZEUS927394HD',
     'Special TIO key',
     '["special_assetindexer"]'::jsonb,
     'available',
@@ -109,16 +109,16 @@ as $$
     select upper(regexp_replace(trim(coalesce(p_license_key, '')), '\s+', '', 'g'));
 $$;
 
-create or replace function public.generate_secure_license_key(p_prefix text default 'BLACKOUT')
+create or replace function public.generate_secure_license_key(p_prefix text default 'ZEUS')
 returns text
 language plpgsql
 as $$
 declare
-    v_prefix text := upper(regexp_replace(trim(coalesce(p_prefix, 'BLACKOUT')), '[^A-Z0-9]+', '', 'g'));
+    v_prefix text := upper(regexp_replace(trim(coalesce(p_prefix, 'ZEUS')), '[^A-Z0-9]+', '', 'g'));
     v_raw text := encode(extensions.gen_random_bytes(12), 'hex');
 begin
     if v_prefix = '' then
-        v_prefix := 'BLACKOUT';
+        v_prefix := 'ZEUS';
     end if;
 
     return v_prefix || '-' ||
@@ -232,7 +232,7 @@ begin
         return json_build_object('success', false, 'message', 'Invalid key', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
-    if v_key ~ '^BLACKOUT-[0-9]+$' then
+    if v_key ~ '^ZEUS-[0-9]+$' then
         return json_build_object('success', false, 'message', 'Old numeric keys are disabled', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
@@ -350,7 +350,7 @@ begin
         return json_build_object('success', false, 'message', 'Invalid key', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
-    if v_key ~ '^BLACKOUT-[0-9]+$' then
+    if v_key ~ '^ZEUS-[0-9]+$' then
         return json_build_object('success', false, 'message', 'Old numeric keys are disabled', 'capabilities', json_build_array(), 'expires_at', null);
     end if;
 
@@ -457,7 +457,7 @@ begin
             raise exception 'Custom keys can only be created one at a time';
         end if;
 
-        if v_custom ~ '^BLACKOUT-[0-9]+$' then
+        if v_custom ~ '^ZEUS-[0-9]+$' then
             raise exception 'Old numeric key format is disabled';
         end if;
 
@@ -483,7 +483,7 @@ begin
     else
         for i in 1..v_quantity loop
             loop
-                v_key := public.generate_secure_license_key('BLACKOUT');
+                v_key := public.generate_secure_license_key('ZEUS');
                 begin
                     insert into public.licenses (license_key, label, capabilities, expires_at, created_by, status, is_active)
                     values (v_key, nullif(trim(coalesce(p_label, '')), ''), v_capabilities, v_expires_at, auth.uid(), 'available', true);
